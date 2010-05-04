@@ -1,5 +1,3 @@
-% \cite[p.41]{ecra07}
-
 \documentclass{article}
 
 \begin{document}
@@ -36,6 +34,8 @@ All the major data elements in the \textsc{Repository}, such as RFQs, offers, co
 
 The resulting \textsc{Oracle} component is essentially a framework for a set of small, configurable sub-components from which other components can request analyses and predictions.  Most of these sub-components are Evaluators, though other types also exist.  The \textsc{Oracle} itself merely uses its configuration data to create and configure instances of Evaluators and other subclasses of ConfiguredObject.  \emph{ConfiguredObject} is an abstract class whose instances have names and some ability to configure themselves, given an appropriate clause from a XML configuration file.  The \textsc{Oracle} creates ConfiguredObject instances and keeps track of them by mapping their names as given in the configuration file to instances.
 
+% TODO:  UML diagram?
+
 During initialization, the \textsc{Oracle} processes a configuration clause that specifies which instances to create, and for each such instance, what name to give it, the values of any parameters necessary to configure it, and the names of any instances it queries for input data.  Figure~\ref{fig:xconf-simpleprice} illustrates such a configuration clause for an evaluator with one parameter and four inputs.
 
 \begin{figure}[ht]
@@ -61,7 +61,9 @@ During initialization, the \textsc{Oracle} processes a configuration clause that
 \label{fig:xconf-simpleprice}
 \end
 
-\subsection{Challenges of modular systems}
+Taken together, a set of Evaluators and other ConfiguredObjects comprises a directed graph of modular components that constitute the majority of the functional code in a MinneTAC configuration.  MinneTAC's modular architecture allows one to easily substitute components for one another for comparative purposes or to create an entirely new set of components with only minimal knowledge of how the agent works internally.  Additionally, using configuration files to defnie graphs of components allows developers to add new components without disrupting other developers' configurations.
+
+\subsection{Design challenges}
 
 \subsection{Previous work}
 
