@@ -1,0 +1,36 @@
+% \cite[p.41]{ecra07}
+
+\documentclass{article}
+
+\begin{document}
+\title{TODO}
+\author[UMN]{Garrett Holmstrom}
+\ead{garrett@cs.umn.edu}
+
+\address[UMN]{Dept. of Computer Science and Engineering,
+    University of Minnesota, 4-192 EE/CS Bldg., 200 Union St SE, Minneapolis,
+    MN 55455, USA.}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\section{Introduction}
+
+\subsection{MinneTAC architecture}
+
+% TODO:  basic background information about MinneTAC goes here
+
+MinneTAC is designed to minimize coupling between its components to support independent work on multiple lines of research.  To that end we use a component-oriented approach...
+
+A MinneTAC agent consists of a set of components for each major decision process in the TAC-SCM game:  \textsc{Procurement}, \textsc{Production}, \textsc{Sales}, and \textsc{Shipping}.  All data to be shared among components are kept in the Repository, which plays the role of the Blackboard in the \emph{Blackboard} pattern\cite{Busch96}.  The \textsc{Communications} component manages interaction with the game server.  Finally, the \textsc{Oracle} component contains a large number of smaller components that maintain models of markets and inventory and perform analyses and predictions.  Ideally, each of these components depends solely upon the \textsc{Repository}, which completely separates major decision processes and allowing researchers to work on them independently.
+
+% TODO:  hub-and-spoke diagram
+
+The \textsc{Oracle} component contains several hundred classes that make up the majority of MinneTAC's code base.
+
+\subsection{Previous work}
+
+\end{document}
