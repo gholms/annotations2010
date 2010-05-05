@@ -1,21 +1,28 @@
-\documentclass{elsart}
+\documentclass{article}
 
 \usepackage{listings}
 
+\lstset{
+    captionpos=b
+}
 \begin{document}
+
 % TODO:  need a title
 \title{Super Awesome Title Goes Here}
-\author[UMN]{Garrett Holmstrom}
-\ead{garrett@cs.umn.edu}
 
-\address[UMN]{Dept. of Computer Science and Engineering,
-    University of Minnesota, 4-192 EE/CS Bldg., 200 Union St SE,
-    Minneapolis, MN 55455, USA.}
+\author{Garrett Holmstrom\thanks{Contact: Garrett Holmstrom, email: garrett@cs.umn.edu},
+    Dept. of Computer Science and Engineering \\ University of Minnesota
+}
+    
+\date{}
 
 \maketitle
 
 \begin{abstract}
-
+\begin{quote}
+Future site of an abstract for this paper
+% TODO:  write me
+\end{quote}
 \end{abstract}
 
 \section{Introduction}
@@ -81,13 +88,15 @@ During initialization, the \textsc{Oracle} processes a configuration
 clause that specifies which instances to create, and for each such
 instance, what name to give it, the values of any parameters necessary to
 configure it, and the names of any instances it queries for input data.
-Figure~\ref{lst:xconf-simpleprice} illustrates such a configuration
+Code listing~\ref{lst:xconf-simpleprice} illustrates such a configuration
 clause for an evaluator with one parameter and four inputs.
-
+\\  % FIXME:  text below ends up too wide for the page
+{\small
 \begin{lstlisting}[language={XML},frame={single},belowcaptionskip=0.4cm,
 label={lst:xconf-simpleprice},caption={Configuration clause for a price
 evaluator that uses one parameter and several inputs}]
-<evaluator class="edu.umn.cs.tac.oracle.eval.SimplePriceEvaluator"
+<evaluator
+    class="edu.umn.cs.tac.oracle.eval.SimplePriceEvaluator"
     name="simple-price">
     <parameters price-probability-exponent="1.0"/>
 </evaluator>
@@ -98,6 +107,7 @@ evaluator that uses one parameter and several inputs}]
     <regression source="probability-of-acceptance"/>
 </graph>
 \end{lstlisting}
+}
 
 Taken together, a set of Evaluators and other ConfiguredObjects comprises
 a directed graph of modular components that constitute the majority
@@ -105,7 +115,7 @@ of the functional code used in a MinneTAC agent workflow.  MinneTAC's
 modular architecture allows one to easily substitute components for one
 another for comparative purposes or to create an entirely new set of
 components with only minimal knowledge of how the agent works internally.
-Additionally, using configuration files to defnie graphs of components
+Additionally, using configuration files to define graphs of components
 allows developers to add new components without disrupting other
 developers' configurations.
 
@@ -151,14 +161,14 @@ variety of methods for specifying and processing component metadata as
 well as choosing compatible components.  An informal survey of some of
 them reveals several common themes as well as important differences.
 
-\subsection{Apache Excalibur~\footnote{http://excalibur.apache.org/}}
+\subsection{Apache Excalibur}
 
-Apache Excalibur is a general-purpose framework for building configurable
+Apache Excalibur\footnote{http://excalibur.apache.org/} is a general-purpose framework for building configurable
 systems out of independent components.  It is typically used as a
 foundation for server software and middleware, such a the Cocoon web
-application framework~\footnote{http://cocoon.apache.org/}.  In the past
+application framework\footnote{http://cocoon.apache.org/}.  In the past
 MinneTAC used Excalibur extensively, so as a result MinneTAC's design
-is heavily influenced by that of Excalibur.~\cite{ecra07} Excalibur
+is heavily influenced by that of Excalibur~\cite{ecra07}.  Excalibur
 components each fulfill specific \emph{roles}, while an Excalibur system
 is a set of roles, each realized by a class specified in a configuration
 file.
@@ -169,7 +179,7 @@ parameters for those classes.  The framework then instantiates the
 appropriate classes and invokes each component's interface.
 
 Most of Excalibur's problems in this situation revolve around
-its extensive use of configruation files and framework methods for
+its extensive use of configuration files and framework methods for
 communications and inversion of control.  Information about what roles
 each component fills is kept exclusively within a configuration file
 that is separate from the component it represents.  When editing a
@@ -177,23 +187,25 @@ system configuration one must cross-reference any changes made with
 component code and documentation, and vice versa --- changes to code
 must be reflected in system configurations.
 % FIXME:  How accurate is that?
+
+%complexity of the config file and the code that uses the configuration is not constrsined to use it correctly
 Since role and configuration data are specified independently of the
 code, Excalibur requires that the programmer simply assert that they
 are consistent with one another; it performs no tests to determine if
 that is actually the case.
 
-\subsection{Enterprise JavaBeans
-3.0~\footnote{http://java.sun.com/products/ejb/} and the Spring
-Framework~\footnote{http://www.springsource.org/}}
+\subsection{Enterprise JavaBeans 3.0 and the Spring Framework}
+%spring 2.?
 
-The Enterprise JavaBeans (EJB) specification is one of several server-side
+The Enterprise JavaBeans (EJB) specification\footnote{http://java.sun.com/products/ejb/} is one of several server-side
 Java EE APIs.  Before API version 3.0, JavaBeans applications were
 constructed similarly to Excalibur applications, via required interfaces
 and abstract classes specified by the API.  EJB gained a reputation for
 introducing complexity without delivering real benefits.
 
 As a result, a counter-movement pushed for ``lighter-weight'' frameworks.
-One of its products, the Spring Framework, is another open source
+One of its products, the Spring Framework\footnote{http://www.springsource.org/}, is another open source
+% any guarantees that the dependencies are of the correct type?
 application framework for Java and .NET applications.  Central to
 this framework is its Inversion of Control container, which provides
 a means of configuring and managing Java objects using callbacks,
@@ -211,14 +223,22 @@ Additionally, in Java 6.0 such code annotations are easy to parse and
 use at runtime.
 % FIXME:  What more can we add?
 
+% This makes things more like a dynamic language, since the compiler can't do type checking and the programmer simply has to assert that dependencies implement the right interfaces
+%
+% We have this problem as well, but we use semantics to provide a degree of assurance that types are compatible at configuration time
+
 \subsection{WINGS}
+
+% we have more like a pipe and filter architecture that makes system design using semantics easier 
+% wings is a much more generalized system that solves a different problem:  linking applications together.  Since we don't always have access to the source code in that scenario we can't rely on internal annotations.
+% The way we're doing things requires that we either have pre-annotated classes or have the ability to add them to the source code.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Scraps}  % TODO:  remove this
 
-We accomplish this by creating an ontological class with Web Ontology Language Description Logic (OWL DL)~\footnote{http://www.w3.org/TR/owl2-overview/} for each Evaluator that describes its inputs' and output's data types, and then determining which evaluators are compatible with one another's inputs and outputs by querying the ontology.  Given correct ontologies, this additionally gives us a way to programmatically check configurations for data type consistency.
+We accomplish this by creating an ontological class with Web Ontology Language Description Logic (OWL DL)\footnote{http://www.w3.org/TR/owl2-overview/} for each Evaluator that describes its inputs' and output's data types, and then determining which evaluators are compatible with one another's inputs and outputs by querying the ontology.  Given correct ontologies, this additionally gives us a way to programmatically check configurations for data type consistency.
 
-For this scheme to work one needs to define an ontological class for each Evaluator.  With our previous code base this was impossible to do programmatically because Java only had knowledge of its native data types, which are less specific than the domain data types needed by the ontology.  Since domain information was specified solely in the documentation, writing these clases was strictly a manual process.
+For this scheme to work one needs to define an ontological class for each Evaluator.  With our previous code base this was impossible to do programmatically because Java only had knowledge of its native data types, which are less specific than the domain data types needed by the ontology.  Since domain information was specified solely in the documentation, writing these classes was strictly a manual process.
 
 Each Evaluator thus has information about its input and output data types defined separately in five locations that have to be kept consistent manually:  its documentation, its ontology, its configuration code, its core logic, and in system configurations.  As a result, these tend to diverge from one another over time as they are not kept consistent automatically.
 
