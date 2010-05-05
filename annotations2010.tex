@@ -109,7 +109,7 @@ Additionally, using configuration files to defnie graphs of components
 allows developers to add new components without disrupting other
 developers' configurations.
 
-\subsection{Usability challenges}
+\section{Usability challenges}
 
 MinneTAC Evaluators gather input data of specific types from zero or
 more other Evaluators, then use these data to produce one output of a
@@ -119,7 +119,7 @@ behave.  Common parameters include exponents and probability thresholds.
 Creating an agent workflow involves choosing a set of Sink components
 from which the main decision-making components request data, choosing
 appropriate graphs of Evaluators that generate the data the chosen Sinks
-require, and finally configuring the individual Evaluators.
+require, and finally configuring the individual Evaluators.~\cite{Collins08TR}
 
 Historically, MinneTAC has proved itself difficult to configure because of
 how complex agent workflows, which tend to have graphs of over one hundred
@@ -130,20 +130,49 @@ one to choose among hundreds of Evaluators, most of which have inputs
 or outputs that are incompatible with the graph location in question.
 
 Gil et al.~\cite{gil2010wings} identify a key issue that workflow
-designers face: tracking and checking input and output data types becomes
-onerous as the size of systems or the number of available components
-increase.  We aim to simplify the configuration process by creating a
-graphical editor for agent workflow configurations.  However, a graphical
-editor alone does nothing to fix the problem arising from the sheer
-number of Evaluators one has to choose from and thus be familiar with.
-By taking context into account and only displaying Evaluators whose
-input or output data types are compatible with the Evaluator selected
-in the editor we require users to be familiar with only a small subset
-of all Evaluators to be able to reasonably choose which Evaluator is
-appropriate for a given location in the workflow.
+designers face: tracking and checking input and output data types
+becomes onerous as the size of systems or the number of available
+components increase.  We aim to simplify MinneTAC's configuration
+process by creating a graphical editor for agent workflow configurations.
+However, a graphical editor alone does nothing to fix the problem arising
+from the sheer number of Evaluators one has to choose from and thus
+be familiar with.  By taking context into account and only displaying
+Evaluators whose input or output data types are compatible with the
+Evaluator selected in the editor we require users to be familiar with
+only a small subset of all Evaluators to be able to reasonably choose
+which Evaluator is appropriate for a given location in the workflow,
+we reduce the chances that the agent will run correctly, and we make it
+simpler to write new components that are likely to work as intended.
 
-Numerous frameworks and applications attempt to solve this problem with a variety of methods for specifying and processing the metadata needed to connect inputs with lists of compatible outputs.  An informal survey of some of them reveals several key approaches.
+Matching inputs with compatible outputs is a common problem in scientific workflow and service composition systems.  A number of existing technologies attempt to solve parts of this problem with a variety of methods for specifying and processing component metadata as well as choosing compatible components.  An informal survey of some of them reveals several common themes as well as important differences.
 
+\subsection{Apache Excalibur~\footnote{http://excalibur.apache.org/}}
 
+Apache Excalibur is a general-purpose framework for building configurable systems out of independent components.  It is typically used as a foundation for server software and middleware, such a the Cocoon web application framework~\footnote{http://cocoon.apache.org/}.  In the past MinneTAC used Excalibur extensively, so as a result MinneTAC's design is heavily influenced by that of Excalibur.~\cite{ecra07}   Excalibur components each fulfill specific \emph{roles}, while an Excalibur system is a set of roles, each realized by a class specified in a configuration file.
+
+When starting, an Excalibur application reads configuration files that specify roles, classes that satisfy those roles, and configuration parameters for those classes.  The framework then instantiates the appropriate classes and invokes each component's interface.
+
+Most of Excalibur's problems in this situation revolve around its extensive use of configruation files and framework methods for communications and inversion of control.  Information about what roles each component fills is kept exclusively within a configuration file that is separate from the component it represents.  When editing a system configuration one must cross-reference any changes made with component code and documentation, and vice versa --- changes to code must be reflected in system configurations.
+% FIXME:  How accurate is that?
+Since role and configuration data are specified independently of the code, Excalibur requires that the programmer simply assert that they are consistent with one another; it performs no tests to determine if that is actually the case.
+
+\subsection{Enterprise JavaBeans 3.0\footnote{http://java.sun.com/products/ejb/} and the Spring Framework~\cite{http://www.springsource.org/}}
+
+The Enterprise JavaBeans (EJB) specification is one of several server-side Java EE APIs.  Before API version 3.0, JavaBeans applications were constructed similarly to Excalibur applications, via required interfaces and abstract classes specified by the API.  EJB gained a reputation for introducing complexity without delivering real benefits.
+
+As a result, a counter-movement pushed for ``lighter-weight'' frameworks.  One of its products, the Spring Framework, is another open source application framework for Java and .NET applications.  Central to this framework is its Inversion of Control container, which provides a means of configuring and managing Java objects using callbacks, similar to Excalibur.  Where the Spring Framework differs from earlier versions of EJB is in how its component metadata are specified:  rather than using a configuration file or required API, one adds annotations to regular Java classes that specify which fields, methods, and classes need dependency injection.  The Spring Framework proved to be so successful that the EJB 3.0 specification borrowed so heavily from Spring that it was nearly completely rewritten.
+
+Specifying component metadata with code annotations links metadata with the code spatially so they are more likely to remain consistent.  Additionally, in Java 6.0 such code annotations are easy to parse and use at runtime.
+% FIXME:  What more can we add?
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We accomplish this by creating an ontological class with Web Ontology Language Description Logic (OWL DL)~\footnote{http://www.w3.org/TR/owl2-overview/} for each Evaluator that describes its inputs' and output's data types, and then determining which evaluators are compatible with one another's inputs and outputs by querying the ontology.  Given correct ontologies, this additionally gives us a way to programmatically check configurations for data type consistency.
+
+For this scheme to work one needs to define an ontological class for each Evaluator.  With our previous code base this was impossible to do programmatically because Java only had knowledge of its native data types, which are less specific than the domain data types needed by the ontology.  Since domain information was specified solely in the documentation, writing these clases was strictly a manual process.
+
+Each Evaluator thus has information about its input and output data types defined separately in five locations that have to be kept consistent manually:  its documentation, its ontology, its configuration code, its core logic, and in system configurations.  As a result, these tend to diverge from one another over time as they are not kept consistent automatically.
+
+In the past Evaluators had to individually devote code to reading their own configuration and input data.  This is because evaluators have individualized sets of inputs, making the code for fetching input data difficult to factor out.  As a result, many evaluators contain duplicate input-fetching code that often dwarfs their core logic in size.  One might find a given evaluator using any of several generations of input-gathering APIs or possibly even processing their own configuration clauses.
 
 \end{document}
