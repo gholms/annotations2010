@@ -9,8 +9,8 @@
 \ead{garrett@cs.umn.edu}
 
 \address[UMN]{Dept. of Computer Science and Engineering,
-    University of Minnesota, 4-192 EE/CS Bldg., 200 Union St SE, Minneapolis,
-    MN 55455, USA.}
+    University of Minnesota, 4-192 EE/CS Bldg., 200 Union St SE,
+    Minneapolis, MN 55455, USA.}
 
 \maketitle
 
@@ -24,7 +24,9 @@
 
 \subsection{MinneTAC architecture}
 
-MinneTAC is designed to minimize coupling between its components to support independent work on multiple lines of research.  To that end we use a component-oriented approach...
+Our TAC-SCM agent, MinneTAC, is a Java application designed to minimize
+coupling between its components to support independent work on multiple
+lines of research.  To that end we use a component-oriented approach...
 % TODO:  finish above
 
 A MinneTAC agent consists of a set of components for each major decision
@@ -107,7 +109,7 @@ Additionally, using configuration files to defnie graphs of components
 allows developers to add new components without disrupting other
 developers' configurations.
 
-\subsection{Design challenges}
+\subsection{Usability challenges}
 
 MinneTAC Evaluators gather input data of specific types from zero or
 more other Evaluators, then use these data to produce one output of a
@@ -127,6 +129,21 @@ component to a particular part of an agent workflow configuration requires
 one to choose among hundreds of Evaluators, most of which have inputs
 or outputs that are incompatible with the graph location in question.
 
-\subsection{Previous work}
+Gil et al.~\cite{gil2010wings} identify a key issue that workflow
+designers face: tracking and checking input and output data types becomes
+onerous as the size of systems or the number of available components
+increase.  We aim to simplify the configuration process by creating a
+graphical editor for agent workflow configurations.  However, a graphical
+editor alone does nothing to fix the problem arising from the sheer
+number of Evaluators one has to choose from and thus be familiar with.
+By taking context into account and only displaying Evaluators whose
+input or output data types are compatible with the Evaluator selected
+in the editor we require users to be familiar with only a small subset
+of all Evaluators to be able to reasonably choose which Evaluator is
+appropriate for a given location in the workflow.
+
+Numerous frameworks and applications attempt to solve this problem with a variety of methods for specifying and processing the metadata needed to connect inputs with lists of compatible outputs.  An informal survey of some of them reveals several key approaches.
+
+
 
 \end{document}
