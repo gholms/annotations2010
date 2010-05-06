@@ -13,15 +13,16 @@
 \author{Garrett Holmstrom\thanks{Contact: Garrett Holmstrom, email: garrett@cs.umn.edu},
     Dept. of Computer Science and Engineering \\ University of Minnesota
 }
-    
+
+% FIXME:  Why doesn't this show up?
 \date{}
 
 \maketitle
 
 \begin{abstract}
 \begin{quote}
-Future site of an abstract for this paper
 % TODO:  write me
+Future site of an abstract for this paper
 \end{quote}
 \end{abstract}
 
@@ -163,15 +164,15 @@ them reveals several common themes as well as important differences.
 
 \subsection{Apache Excalibur}
 
-Apache Excalibur\footnote{http://excalibur.apache.org/} is a general-purpose framework for building configurable
-systems out of independent components.  It is typically used as a
-foundation for server software and middleware, such a the Cocoon web
-application framework\footnote{http://cocoon.apache.org/}.  In the past
-MinneTAC used Excalibur extensively, so as a result MinneTAC's design
-is heavily influenced by that of Excalibur~\cite{ecra07}.  Excalibur
-components each fulfill specific \emph{roles}, while an Excalibur system
-is a set of roles, each realized by a class specified in a configuration
-file.
+Apache Excalibur\footnote{http://excalibur.apache.org/} is a
+general-purpose framework for building configurable systems out of
+independent components.  It is typically used as a foundation for
+server software and middleware, such a the Cocoon web application
+framework\footnote{http://cocoon.apache.org/}.  In the past MinneTAC
+used Excalibur extensively, so as a result MinneTAC's design is heavily
+influenced by that of Excalibur~\cite{ecra07}.  Excalibur components
+each fulfill specific \emph{roles}, while an Excalibur system is a set
+of roles, each realized by a class specified in a configuration file.
 
 When starting, an Excalibur application reads configuration files that
 specify roles, classes that satisfy those roles, and configuration
@@ -181,30 +182,31 @@ appropriate classes and invokes each component's interface.
 Most of Excalibur's problems in this situation revolve around
 its extensive use of configuration files and framework methods for
 communications and inversion of control.  Information about what roles
-each component fills is kept exclusively within a configuration file
-that is separate from the component it represents.  When editing a
-system configuration one must cross-reference any changes made with
-component code and documentation, and vice versa --- changes to code
-must be reflected in system configurations.
-% FIXME:  How accurate is that?
+each component fills is kept exclusively within a configuration file that
+is separate from the component it represents.  When editing a system
+configuration one must cross-reference any changes made with component
+code and documentation, and vice versa --- changes to code must be
+reflected in system configurations.  Since role and configuration data
+are specified independently of the code, Excalibur requires that the
+programmer simply assert that they are consistent with one another;
+it performs no tests to determine if that is actually the case.
 
-%complexity of the config file and the code that uses the configuration is not constrsined to use it correctly
-Since role and configuration data are specified independently of the
-code, Excalibur requires that the programmer simply assert that they
-are consistent with one another; it performs no tests to determine if
-that is actually the case.
+% complexity of the config file is a problem
+% the code that uses the configuration is not constrained to use it correctly
 
 \subsection{Enterprise JavaBeans 3.0 and the Spring Framework}
 %spring 2.?
 
-The Enterprise JavaBeans (EJB) specification\footnote{http://java.sun.com/products/ejb/} is one of several server-side
-Java EE APIs.  Before API version 3.0, JavaBeans applications were
-constructed similarly to Excalibur applications, via required interfaces
-and abstract classes specified by the API.  EJB gained a reputation for
-introducing complexity without delivering real benefits.
+The Enterprise JavaBeans (EJB)
+specification\footnote{http://java.sun.com/products/ejb/} is one of
+several server-side Java EE APIs.  Before API version 3.0, JavaBeans
+applications were constructed similarly to Excalibur applications, via
+required interfaces and abstract classes specified by the API.  EJB gained
+a reputation for introducing complexity without delivering real benefits.
 
 As a result, a counter-movement pushed for ``lighter-weight'' frameworks.
-One of its products, the Spring Framework\footnote{http://www.springsource.org/}, is another open source
+One of its products, the Spring
+Framework\footnote{http://www.springsource.org/}, is another open source
 % any guarantees that the dependencies are of the correct type?
 application framework for Java and .NET applications.  Central to
 this framework is its Inversion of Control container, which provides
@@ -223,18 +225,18 @@ Additionally, in Java 6.0 such code annotations are easy to parse and
 use at runtime.
 % FIXME:  What more can we add?
 
-% This makes things more like a dynamic language, since the compiler can't do type checking and the programmer simply has to assert that dependencies implement the right interfaces
+% This sort of thing makes things more like a dynamic language, since the compiler can't do type checking and the programmer simply has to assert that dependencies implement the right interfaces
 %
 % We have this problem as well, but we use semantics to provide a degree of assurance that types are compatible at configuration time
 
 \subsection{WINGS}
 
-% we have more like a pipe and filter architecture that makes system design using semantics easier 
+% we have more like a pipe and filter architecture that makes system design using semantics easier
 % wings is a much more generalized system that solves a different problem:  linking applications together.  Since we don't always have access to the source code in that scenario we can't rely on internal annotations.
 % The way we're doing things requires that we either have pre-annotated classes or have the ability to add them to the source code.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Scraps}  % TODO:  remove this
+\section{Scraps --- bits of text that don't yet have homes} % TODO:  remove this
 
 We accomplish this by creating an ontological class with Web Ontology Language Description Logic (OWL DL)\footnote{http://www.w3.org/TR/owl2-overview/} for each Evaluator that describes its inputs' and output's data types, and then determining which evaluators are compatible with one another's inputs and outputs by querying the ontology.  Given correct ontologies, this additionally gives us a way to programmatically check configurations for data type consistency.
 
