@@ -28,6 +28,9 @@ Future site of an abstract for this paper
 
 \section{Introduction}
 
+\section{Background}
+
+\subsection{Supply chain trading agent competition}
 % TODO:  basic information about TAC-SCM?
 
 \subsection{MinneTAC architecture}
@@ -91,21 +94,21 @@ instance, what name to give it, the values of any parameters necessary to
 configure it, and the names of any instances it queries for input data.
 Code listing~\ref{lst:xconf-simpleprice} illustrates such a configuration
 clause for an evaluator with one parameter and four inputs.
-\\  % FIXME:  text below ends up too wide for the page
+
 {\small
-\begin{lstlisting}[language={XML},frame={single},belowcaptionskip=0.4cm,
+\begin{lstlisting}[language={XML},frame={single},
 label={lst:xconf-simpleprice},caption={Configuration clause for a price
 evaluator that uses one parameter and several inputs}]
 <evaluator
-    class="edu.umn.cs.tac.oracle.eval.SimplePriceEvaluator"
-    name="simple-price">
-    <parameters price-probability-exponent="1.0"/>
+    class=``edu.umn.cs.tac.oracle.eval.SimplePriceEvaluator''
+    name=``simple-price''>
+    <parameters price-probability-exponent=``1.0''/>
 </evaluator>
-<graph source="simple-price">
-    <quantity source="customer-quantity"/>
-    <effective-demand source="effective-demand"/>
-    <allocation source="allocation"/>
-    <regression source="probability-of-acceptance"/>
+<graph source=``simple-price''>
+    <quantity source=``customer-quantity''/>
+    <effective-demand source=``effective-demand''/>
+    <allocation source=``allocation''/>
+    <regression source=``probability-of-acceptance''/>
 </graph>
 \end{lstlisting}
 }
@@ -134,28 +137,19 @@ require, and finally configuring the individual Evaluators.~\cite{Collins08TR}
 
 Historically, MinneTAC has proved itself difficult to configure because of
 how complex agent workflows, which tend to have graphs of over one hundred
-evaluators, tend to be.  This makes using the agent much less accessible
-to users who are less familiar with every available Evaluator.  Adding a
-component to a particular part of an agent workflow configuration requires
-one to choose among hundreds of Evaluators, most of which have inputs
-or outputs that are incompatible with the graph location in question.
+evaluators, tend to be.  Adding a component to a particular part of an agent workflow requires one to choose among hundreds of Evaluators, only a few of which are typically compatible with the relevant location in the workflow.
+This makes the agent much less accessible
+to users who are less familiar with every available Evaluator.
 
-Gil et al.~\cite{gil2010wings} identify a key issue that workflow
-designers face: tracking and checking input and output data types
+Gil et al.~\cite{gil2010wings} identify another key issue that workflow
+designers face: tracking and checking input and output constraints
 becomes onerous as the size of systems or the number of available
-components increase.  We aim to simplify MinneTAC's configuration
-process by creating a graphical editor for agent workflow configurations.
-However, a graphical editor alone does nothing to fix the problem arising
-from the sheer number of Evaluators one has to choose from and thus
-be familiar with.  By taking context into account and only displaying
-Evaluators whose input or output data types are compatible with the
-Evaluator selected in the editor we require users to be familiar with
-only a small subset of all Evaluators to be able to reasonably choose
-which Evaluator is appropriate for a given location in the workflow,
-we reduce the chances that the agent will run correctly, and we make it
-simpler to write new components that are likely to work as intended.
+components increase.  Manual workflow composition, as is the case
+with other user-driven tasks, is prone to errors and inconsistencies.
 
-Matching inputs with compatible outputs is a common problem in
+Maintaining input and output constraints while keeping the knowledge
+necessary to build and edit agent workflows to a reasonable level
+is a common problem in
 scientific workflow and service composition systems.  A number of
 existing technologies attempt to solve parts of this problem with a
 variety of methods for specifying and processing component metadata as
@@ -181,7 +175,8 @@ appropriate classes and invokes each component's interface.
 
 Most of Excalibur's problems in this situation revolve around
 its extensive use of configuration files and framework methods for
-communications and inversion of control.  Information about what roles
+communications and inversion of control.  The configuration files often become exceedingly complex, increasing the likelihood of human error.
+Information about what roles
 each component fills is kept exclusively within a configuration file that
 is separate from the component it represents.  When editing a system
 configuration one must cross-reference any changes made with component
@@ -189,13 +184,11 @@ code and documentation, and vice versa --- changes to code must be
 reflected in system configurations.  Since role and configuration data
 are specified independently of the code, Excalibur requires that the
 programmer simply assert that they are consistent with one another;
-it performs no tests to determine if that is actually the case.
-
-% complexity of the config file is a problem
-% the code that uses the configuration is not constrained to use it correctly
+it performs no tests to determine if that is actually the case.  Moreover,
+even if metadata are specified correctly, the code that uses the role metadata is not constrained to use them correctly.
 
 \subsection{Enterprise JavaBeans 3.0 and the Spring Framework}
-%spring 2.?
+%spring 2.x?
 
 The Enterprise JavaBeans (EJB)
 specification\footnote{http://java.sun.com/products/ejb/} is one of
@@ -207,7 +200,6 @@ a reputation for introducing complexity without delivering real benefits.
 As a result, a counter-movement pushed for ``lighter-weight'' frameworks.
 One of its products, the Spring
 Framework\footnote{http://www.springsource.org/}, is another open source
-% any guarantees that the dependencies are of the correct type?
 application framework for Java and .NET applications.  Central to
 this framework is its Inversion of Control container, which provides
 a means of configuring and managing Java objects using callbacks,
@@ -220,20 +212,37 @@ that the EJB 3.0 specification borrowed so heavily from Spring that it
 was nearly completely rewritten.
 
 Specifying component metadata with code annotations links metadata
-with the code spatially so they are more likely to remain consistent.
-Additionally, in Java 6.0 such code annotations are easy to parse and
-use at runtime.
-% FIXME:  What more can we add?
+with the code spatially so they are more likely to remain consistent than
+metadata specified in separate files without losing the ability to take
+advantage of them at runtime.  However, using annotations to regular
+Java classes to supply these metadata comes at the cost of static
+type checking, relying the programmer to assert that components
+implement the interfaces their annotations claim to support until such
+claims can be verified at runtime.
 
-% This sort of thing makes things more like a dynamic language, since the compiler can't do type checking and the programmer simply has to assert that dependencies implement the right interfaces
-%
 % We have this problem as well, but we use semantics to provide a degree of assurance that types are compatible at configuration time
 
 \subsection{WINGS}
 
+% TODO:  write me
+
 % we have more like a pipe and filter architecture that makes system design using semantics easier
 % wings is a much more generalized system that solves a different problem:  linking applications together.  Since we don't always have access to the source code in that scenario we can't rely on internal annotations.
 % The way we're doing things requires that we either have pre-annotated classes or have the ability to add them to the source code.
+
+\subsection{WSDL-S}
+
+% TODO:  write me
+
+\section{Approach}
+
+We aim to simplify MinneTAC's configuration
+process by creating a graphical editor for agent workflow configurations that draws on ideas from Kim et al's Composition Analysis Tool~\cite{kim2004intelligent}.
+A graphical editor alone does nothing to fix the problem arising
+from the sheer number of Evaluators one has to choose from and thus
+be familiar with; at any point during workflow composition one may have to choose from a number of components when adding or replacing components.
+By systematically generating all of the choices throughout the workflow building process we can take context into account and only display Evaluators whose input or output data types are compatible with a given Evaluator.
+This reduces the number of Evaluators users have to be familiar with at each step to only a small subset of all Evaluators, improving the chances that the agent will run correctly and making it simpler to write new components that are likely to work as intended.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Scraps --- bits of text that don't yet have homes} % TODO:  remove this
@@ -241,8 +250,7 @@ use at runtime.
 We accomplish this by creating an ontological class with Web Ontology Language Description Logic (OWL DL)\footnote{http://www.w3.org/TR/owl2-overview/} for each Evaluator that describes its inputs' and output's data types, and then determining which evaluators are compatible with one another's inputs and outputs by querying the ontology.  Given correct ontologies, this additionally gives us a way to programmatically check configurations for data type consistency.
 
 For this scheme to work one needs to define an ontological class for each Evaluator.  With our previous code base this was impossible to do programmatically because Java only had knowledge of its native data types, which are less specific than the domain data types needed by the ontology.  Since domain information was specified solely in the documentation, writing these classes was strictly a manual process.
-
-Each Evaluator thus has information about its input and output data types defined separately in five locations that have to be kept consistent manually:  its documentation, its ontology, its configuration code, its core logic, and in system configurations.  As a result, these tend to diverge from one another over time as they are not kept consistent automatically.
+Each Evaluator thus had information about its input and output data types defined separately in five locations that have to be kept consistent manually:  its documentation, its ontology, its configuration code, its core logic, and in system configurations.  As a result, these tended to diverge from one another over time as they were not kept consistent automatically.
 
 In the past Evaluators had to individually devote code to reading their own configuration and input data.  This is because evaluators have individualized sets of inputs, making the code for fetching input data difficult to factor out.  As a result, many evaluators contain duplicate input-fetching code that often dwarfs their core logic in size.  One might find a given evaluator using any of several generations of input-gathering APIs or possibly even processing their own configuration clauses.
 
