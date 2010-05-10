@@ -13,6 +13,7 @@
 \author{Garrett Holmstrom\thanks{Contact: Garrett Holmstrom, email: garrett@cs.umn.edu},
     Dept. of Computer Science and Engineering \\ University of Minnesota
 }
+% TODO:  Add John Collins
 
 % FIXME:  Why doesn't this show up?
 \date{}
@@ -21,8 +22,7 @@
 
 \begin{abstract}
 \begin{quote}
-% TODO:  write me
-Future site of an abstract for this paper
+TODO:  write me
 \end{quote}
 \end{abstract}
 
@@ -31,7 +31,7 @@ Future site of an abstract for this paper
 \section{Background}
 
 \subsection{Supply chain trading agent competition}
-% TODO:  basic information about TAC-SCM?
+TODO:  basic information about TAC-SCM?
 
 \subsection{MinneTAC architecture}
 
@@ -225,7 +225,7 @@ claims can be verified at runtime.
 
 \subsection{WINGS}
 
-% TODO:  write me
+TODO:  write me
 
 % we have more like a pipe and filter architecture that makes system design using semantics easier
 % wings is a much more generalized system that solves a different problem:  linking applications together.  Since we don't always have access to the source code in that scenario we can't rely on internal annotations.
@@ -233,23 +233,63 @@ claims can be verified at runtime.
 
 \subsection{WSDL-S}
 
-% TODO:  write me
+TODO:  write me
 
 \section{Approach}
 
-We aim to simplify MinneTAC's configuration
-process by creating a graphical editor for agent workflow configurations that draws upon ideas from Kim et al's Composition Analysis Tool~\cite{kim2004intelligent} along with the systems surveyed in section \ref{sec:challenges}.
+We aim to simplify MinneTAC's configuration process by creating a graphical editor for agent workflow configurations that draws upon ideas from Kim et al's Composition Analysis Tool~\cite{kim2004intelligent} along with the systems surveyed in section \ref{sec:challenges}.
 % FIXME:  why doesn't the above reference work?
-A graphical editor alone does nothing to fix the problem arising
-from the sheer number of Evaluators one has to choose from and thus
-be familiar with; at any point during workflow composition one may have to choose from a number of components when adding or replacing components.
+A graphical editor alone does nothing to fix the problem arising from the sheer number of Evaluators one has to choose from and thus be familiar with; at any point during workflow composition one may have to choose from a number of components when adding or replacing components.
 By systematically generating all of the choices throughout the workflow building process we can take context into account and only display Evaluators whose input or output data types are compatible with a given Evaluator.
 This reduces the number of Evaluators users have to be familiar with at each step to only a small subset of all Evaluators, improving the chances that the agent will run correctly and making it simpler to write new components that are likely to work as intended.
 
+\subsection{MinneTAC Ontology}
+
+We accomplish this by creating a knowledge base of Evaluators and their input and output parameters using Web Ontology Language Description Logic (OWL-DL)\footnote{http://www.w3.org/TR/owl2-overview/}.
+This semantic information allows us to query which Evaluators are compatible with one another's inputs and outputs.
+Additionally, this gives us a way to programmatically check workflow configurations for consistency at configuration time rather than at runtime.
+
+For this scheme to work one needs to define a \emph{component ontology} for each Evaluator that contains an ontological class describing its inputs and outputs.
+These classes are unified by a top-level \emph{domain term ontology} that describes the data types used to represent inputs and outputs and their associated constraints.
+The number of primitive types MinneTAC uses is small, consisting of about ten types, including prices, probabilities, and quantities.
+We take advantage of this domain knowledge by placing only these primitive types in the domain term ontology and letting component ontologies define composite types on their own using templates for composite types that are also specified in the domain term ontology.
+Simple OWL rules determine whether composite types specified by different component ontologies are compatible or not.
+Employing our knowledge of the domain in this way solves a number of problems that typically plague workflow composition systems:
+
+\begin{description}
+
+\item[Workflows are easier to construct.]
+As explained earlier, restricting the list of possible Evaluators one can add in the workflow editor to only those that make sense contextually makes each step in the workflow composition process faster since one only needs to compare a small number of Evaluators rather than sift through a long list of all Evaluators.
+
+\item[Type incompatibilities are detected before runtime.]
+Using annotations instead of interfaces comes at the cost of Java's static type checking, forcing workflow builders to prevent type incompatibilities on their own.
+MinneTAC has this problem as well, but using semantics to restrict what choices are displayed in the workflow editor provides a degree of assurance that types are compatible at configuration time rather than at runtime.
+
+\item[Evaluators are easy to annotate.]
+Limiting the number of top-level domain types to be aware of makes it simple to find the correct types to assign to input and output annotations.
+
+\item[The chances of evaluator duplication are reduced.]
+If developers fail to immediately find Evaluators that do what they want while composing workflows they might create redundant ones, even if doing so means duplication, because writing new Evaluators is less of a cognitive burden than remembering them all.
+A workflow editor that restricts the choices presented at each step increases the visibility of existing Evaluators that are contextually sensible.
+
+\item[The chances of type duplication are reduced.]
+The writer of a new Evaluator must choose the correct data types for its inputs and outputs.
+When the domain term ontology is very large the most appropriate type might be overlooked, causing the writer to add a new, redundant type to it.
+Keeping the number of types small reduces the likelihood of this problem.
+
+\end{description}
+
+The choice of size for the domain term ontology represents an important tradeoff between specificity and usability.
+A small domain term ontology affords easier usability in that there are few types to learn when trying to understand the domain's types, but those types are necessarily more generic than those from a larger term ontology, leading to ambiguity.
+If domain types are too generic then Evaluator lists remain too large because too many Evaluators match queries against component ontologies.
+This at least partially negates the benefit of using a workflow editor that makes use of semantic information.
+However, opting toward a larger domain term ontology makes it difficult to choose the correct type out of the plethora of types that already exist when writing a new Evaluator.
+In such a situation it may be easier to add still more new domain types than to decide whether any existing types are specific enough.
+This reduces the utility of the workflow editor in the opposite way:  reasonable options may be overlooked.
+This is a problem for % TODO:  finish me
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Scraps --- bits of text that don't yet have homes} % TODO:  remove this
-
-We accomplish this by creating an ontological class with Web Ontology Language Description Logic (OWL DL)\footnote{http://www.w3.org/TR/owl2-overview/} for each Evaluator that describes its inputs' and output's data types, and then determining which evaluators are compatible with one another's inputs and outputs by querying the ontology.  Given correct ontologies, this additionally gives us a way to programmatically check configurations for data type consistency.
 
 For this scheme to work one needs to define an ontological class for each Evaluator.  With our previous code base this was impossible to do programmatically because Java only had knowledge of its native data types, which are less specific than the domain data types needed by the ontology.  Since domain information was specified solely in the documentation, writing these classes was strictly a manual process.
 Each Evaluator thus had information about its input and output data types defined separately in five locations that have to be kept consistent manually:  its documentation, its ontology, its configuration code, its core logic, and in system configurations.  As a result, these tended to diverge from one another over time as they were not kept consistent automatically.
