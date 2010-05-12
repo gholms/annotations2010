@@ -145,15 +145,23 @@ The Spring Framework proved to be so successful that the EJB 3.0 specification b
 Specifying component metadata with code annotations links metadata with the code spatially so they are more likely to remain consistent than metadata specified in separate files without losing the ability to take advantage of them at runtime.
 However, using annotations to regular Java classes to supply these metadata comes at the cost of static type checking, relying the programmer to assert that components implement the interfaces their annotations claim to support until such claims can be verified at runtime.
 
-% We have this problem as well, but we use semantics to provide a degree of assurance that types are compatible at configuration time
+% We have this problem as well, but we use semantics to provide a degree of assurance that types are compatible at configuration time.
 
 \subsection{WINGS}
 
-TODO:  write me
+The WINGS system proposed by Gil et al~\cite{gil2007wings} uses semantic component descriptions to help users create partial experiment workflows for the Pegasus workflow management service~\cite{callaghan2009scaling}.
+Using an interactive editor one designs abstract versions of workflows that the workflow editor then fills in with concrete components and data sources using its knowledge base of component information.
 
-% we have more like a pipe and filter architecture that makes system design using semantics easier
-% wings is a much more generalized system that solves a different problem:  linking applications together.  Since we don't always have access to the source code in that scenario we can't rely on internal annotations.
-% The way we're doing things requires that we either have pre-annotated classes or have the ability to add them to the source code.
+This system successfully abstracts away the choice of components during the process of workflow design while still maintaining input and output constraints.
+It is very flexible, allowing one to use nearly any sort of software as a component as long as one can describe it semantically.
+
+Where WINGS falls short of our needs is its failure to link component semantics with component code; workflow authors simply have to trust that their component descriptions are accurate, and they do not learn about any disparities until runtime.
+This is primarily a result of the system's design.
+WINGS is a much more generalized system than we need that solves a subtly different problem, namely linking disparate applications together.
+Since it needs to support software for which modifiable source may not be available it necessarily must support semantic descriptions that are decoupled from component code and cannot rely on internal annotations.
+
+With MinneTAC we can benefit from a simpler, ``pipe-and-filter'' architecture that makes system design using semantics easier.
+We can also benefit from access to component source code by employing methods that use Java annotations, which help link component code with their semantic descriptions.
 
 \subsection{WSDL-S}
 
@@ -161,8 +169,7 @@ TODO:  write me
 
 \section{Approach}
 
-We aim to simplify MinneTAC's configuration process by creating a graphical editor for agent workflow configurations that draws upon ideas from Kim et al's Composition Analysis Tool~\cite{kim2004intelligent} along with the systems surveyed in section \ref{sec:challenges}.
-% FIXME:  why doesn't the above reference work?
+We aim to simplify MinneTAC's configuration process by creating a graphical editor for agent workflow configurations that draws upon ideas from Kim et al's Composition Analysis Tool~\cite{kim2004intelligent} as well as those from the systems surveyed in section \ref{sec:challenges}.
 A graphical editor alone does nothing to fix the problem arising from the sheer number of Evaluators one has to choose from and thus be familiar with; at any point during workflow composition one may have to choose from a number of components when adding or replacing components.
 By systematically generating all of the choices throughout the workflow building process we can take context into account and only display Evaluators whose input or output data types are compatible with a given Evaluator.
 This reduces the number of Evaluators users have to be familiar with at each step to only a small subset of all Evaluators, improving the chances that the agent will run correctly and making it simpler to write new components that are likely to work as intended.
@@ -257,7 +264,7 @@ double[][] quota;
 
 Listing \ref{lst:input-composite} is an example of where we chose to use a simple type over several specific types.
 We refer to product quotas as Quantities rather than ProductQuotas to reduce the size of the domain term ontology.
-While this means some of the candidate Evaluators the workflow editor displays will be incorrect, the list of candidate Evaluators is short enough that it remains an acceptable cognitive burden.
+While this means some of the candidate Evaluators the workflow editor displays will be incorrect, the list of candidate Evaluators is short enough that it remains well within human cognitive ability.
 For this reason, documentation remains important.
 Input and Output annotations accept \texttt{description} strings in addition to their names and types.
 Placing descriptions inside the annotations instead of in Javadoc comments allows the descriptions to be available to the workflow editor, which can then display descriptions alongside Evaluators to eliminate confusion about inputs' and outputs' specific meanings.
