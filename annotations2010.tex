@@ -14,7 +14,7 @@
 }
 % TODO:  Add John Collins
 
-% FIXME:  Why doesn't this show up?
+% FIXME:  Why doesn't the date show up?
 \date{}
 
 \maketitle
@@ -30,12 +30,15 @@ TODO:  write me
 \section{Background}
 
 \subsection{Supply chain trading agent competition}
-TODO:  basic information about TAC-SCM
+TODO:  basic information about TAC-SCM  (Suggestions?)
 
 \subsection{MinneTAC architecture}
 
-Our TAC-SCM agent, MinneTAC, is a Java application designed to minimize coupling between its components to support independent work on multiple lines of research.  To that end we use a component-oriented approach...
-% TODO:  finish above
+Our TAC-SCM agent, MinneTAC, is a Java application designed to minimize coupling between its components to support independent work on multiple lines of research.
+To that end we use a component-oriented approach that allows one to easily choose which components to use for a given agent workflow.
+This makes it simple to non-disruptively create drop-in replacements for individual components or related groups of components.
+It additionally allows for easy comparisons of the agent's performance using alternative components in otherwise identical scenarios.
+% TODO:  should we add more info here?
 
 A MinneTAC agent consists of a set of components for each major decision process in the TAC-SCM game:  \textsc{Procurement}, \textsc{Production}, \textsc{Sales}, and \textsc{Shipping}.
 All data to be shared among components are kept in the \textsc{Repository}, which plays the role of the Blackboard in the \emph{Blackboard} pattern\cite{Busch96}.
@@ -43,7 +46,7 @@ The \textsc{Communications} component manages interaction with the game server.
 Finally, the \textsc{Oracle} component contains a large number of smaller components that maintain models of markets and inventory and perform analyses and predictions.
 Ideally, each of these major components depends solely upon the \textsc{Repository}, which completely separates major decision processes and allowing researchers to work on them independently.
 
-% TODO:  hub-and-spoke diagram
+TODO:  hub-and-spoke diagram here?
 
 Since decision components cannot depend on one another, they communicate using \emph{evaluations} that are accessible through the various data elements in the \textsc{Repository}.
 Any calculations or analyses that are performed on \textsc{Repository} data can be encapsulated in the form of evaluations and made available to all other components via the \textsc{Repository}.
@@ -61,10 +64,10 @@ The \textsc{Oracle} itself merely uses its configuration data to create and conf
 \emph{ConfiguredObject} is an abstract class whose instances have names and some ability to configure themselves, given an appropriate clause from a XML configuration file.
 The \textsc{Oracle} creates ConfiguredObject instances and keeps track of them by mapping their names as given in the configuration file to instances.
 
-% TODO:  UML diagram?
+TODO:  UML diagram here?
 
 During initialization, the \textsc{Oracle} processes a configuration clause that specifies which instances to create, and for each such instance, what name to give it, the values of any parameters necessary to configure it, and the names of any instances it queries for input data.
-Code listing~\ref{lst:xconf-simpleprice} illustrates such a configuration clause for an evaluator with one parameter and four inputs.
+Code listing~\ref{lst:xconf-simpleprice} illustrates such a configuration clause for an Evaluator with one parameter and four inputs.
 
 {\small
 \begin{lstlisting}[language={XML},frame={single},
@@ -114,27 +117,18 @@ It is typically used as a foundation for server software and middleware, such a 
 In the past MinneTAC used Excalibur extensively, so as a result MinneTAC's design is heavily influenced Excalibur's architecture~\cite{Collins08ECRA}.
 Excalibur components each fulfill specific \emph{roles}, while an Excalibur system is a set of roles, each realized by a class specified in a configuration file.
 
-When starting, an Excalibur application reads configuration files that
-specify roles, classes that satisfy those roles, and configuration
-parameters for those classes.  The framework then instantiates the
-appropriate classes and invokes each component's interface.
+When starting, an Excalibur application reads configuration files that specify roles, classes that satisfy those roles, and configuration parameters for those classes.
+The framework then instantiates the appropriate classes and invokes each component's interface.
 
-Most of Excalibur's problems in this situation revolve around
-its extensive use of configuration files and framework methods for
-communications and inversion of control.  The configuration files often become exceedingly complex, increasing the likelihood of human error.
-Information about what roles
-each component fills is kept exclusively within a configuration file that
-is separate from the component it represents.  When editing a system
-configuration one must cross-reference any changes made with component
-code and documentation, and vice versa --- changes to code must be
-reflected in system configurations.  Since role and configuration data
-are specified independently of the code, Excalibur requires that the
-programmer simply assert that they are consistent with one another;
-it performs no tests to determine if that is actually the case.  Moreover,
-even if metadata are specified correctly, the code that uses the role metadata is not constrained to use them correctly.
+Most of Excalibur's problems in this situation revolve around its extensive use of configuration files and framework methods for communications and inversion of control.
+The configuration files often become exceedingly complex, increasing the likelihood of human error.
+Information about what roles each component fills is kept exclusively within a configuration file that is separate from the component it represents.
+When editing a system configuration one must cross-reference any changes made with component code and documentation, and vice versa --- changes to code must be reflected in system configurations.
+Since role and configuration data are specified independently of the code, Excalibur requires that the programmer simply assert that they are consistent with one another; it performs no tests to determine if that is actually the case.
+Moreover, even if metadata are specified correctly, code that uses the role metadata is not constrained to use them correctly.
 
 \subsection{Enterprise JavaBeans 3.0 and the Spring Framework}
-%spring 2.x?
+% Spring 2.x?
 
 The Enterprise JavaBeans (EJB) specification\footnote{http://java.sun.com/products/ejb/} is one of several server-side Java EE APIs.
 Before API version 3.0, JavaBeans applications were constructed similarly to Excalibur applications, via required interfaces and abstract classes specified by the API.
@@ -196,11 +190,11 @@ MinneTAC has this problem as well, but using semantics to restrict what choices 
 \item[Evaluators are easy to annotate.]
 Limiting the number of top-level domain types to be aware of makes it simple to find the correct types to assign to input and output annotations.
 
-\item[The chances of evaluator duplication are reduced.]
+\item[Chances of evaluator duplication are reduced.]
 If developers fail to immediately find Evaluators that do what they want while composing workflows they might create redundant ones, even if doing so means duplication, because writing new Evaluators is less of a cognitive burden than remembering them all.
 A workflow editor that restricts the choices presented at each step increases the visibility of existing Evaluators that are contextually sensible.
 
-\item[The chances of type duplication are reduced.]
+\item[Chances of type duplication are reduced.]
 The writer of a new Evaluator must choose the correct data types for its inputs and outputs.
 When the domain term ontology is very large the most appropriate type might be overlooked, causing the writer to add a new, redundant type to it.
 Keeping the number of types small reduces the likelihood of this problem.
@@ -219,7 +213,7 @@ While semantic discovery systems like those proposed by Rajasekaran et al in 200
 Thus services are free to define their own, differing notations for the same purposes, creating duplication and limiting the usefulness of semantic searches.
 Where the proper balance between larger, more specific domain term ontologies and smaller, more understandable domain term ontologies depends heavily on the domain in question.
 
-\subsection{Generating component ontologies}
+\subsection{Using domain type information}
 
 To fill out the component ontology we need to define an ontological class for each Evaluator.
 With our previous code base this was impossible to do programmatically because Java only had knowledge of the native data types each Evaluator used, as opposed to the more specific domain data types needed to build OWL classes.
@@ -227,8 +221,57 @@ For instance, an array of \texttt{double} values indexed by \texttt{integer} val
 Domain information was specified solely in the documentation, making creating these classes a strictly manual process.
 Each Evaluator thus had information about its input and output data types defined separately in five locations that had to be kept consistent manually:  its documentation, its ontology, its configuration code, its core logic, and in system configurations.
 As a result, these tended to diverge from one another over time as they were not kept consistent automatically.
+Using annotations to specify domain data types lets us use the same source of type information for each of these purposes.
 
-% TODO:  fields before and after annotation
+An input annotation contains two main fields:  a name and a type declaration.
+The name defines what name an Evaluator uses to request its input data from the \textsc{Repository}.
+In the configuration file this name corresponds to the tag names in \texttt{graph} elements such as the one in code listing \ref{lst:xconf-simpleprice}.
+The type declaration is a string containing any of the small number of scalar data types that makes up MinneTAC's domain term ontology or arrays thereof.
+For example, a simple input annotation of scalar type might look like the following:
+
+{\small
+\begin{lstlisting}[language={Java},frame={single},label={lst:input-scalar},caption={An Input annotation with scalar type}]
+@Input(name="probability", type="ProbabilityReal")
+double probability;
+\end{lstlisting}
+}
+
+When the workflow editor starts it loads each available Evaluator, creates an OWL class for it, and associates with this class an Input for each field it can find that has an Input annotation.
+The field carrying the annotation in listing \ref{lst:input-scalar} ends up being represented by an Input of the scalar type ProbabilityReal, which is defined in the domain term ontology.
+
+Non-scalar types are composed of scalar types from the domain term ontology.
+When parsing a type of this sort the workflow editor creates a new subclass of types \texttt{1DArray}, \texttt{2DArray}, or so forth in the ontology and assigns cell types and index types to the subclass.
+Simple OWL rules determine whether or not composite types defined by different components are equivalent to one another.
+A two-dimensional array, for example, may have cells that contain product quotas which are indexed first by product ID and second by lead time.
+An annotation for this may appear like the following:
+
+{\small
+\begin{lstlisting}[language={Java},frame={single},label={lst:input-composite},caption={An Input annotation with composite type}]
+@Input(name="quota",
+       type="QuantityReal[ProductIndex][LeadTimeInteger]")
+double[][] quota;
+\end{lstlisting}
+}
+
+Listing \ref{lst:input-composite} is an example of where we chose to use a simple type over several specific types.
+We refer to product quotas as Quantities rather than ProductQuotas to reduce the size of the domain term ontology.
+While this means some of the candidate Evaluators the workflow editor displays will be incorrect, the list of candidate Evaluators is short enough that it remains an acceptable cognitive burden.
+For this reason, documentation remains important.
+Input and Output annotations accept \texttt{description} strings in addition to their names and types.
+Placing descriptions inside the annotations instead of in Javadoc comments allows the descriptions to be available to the workflow editor, which can then display descriptions alongside Evaluators to eliminate confusion about inputs' and outputs' specific meanings.
+Javadoc displays Input and Output annotations alongside their associated fields and methods, so components' documentation is always consistent with their ontologies.
+
+Output methods specify their return types with annotations in much the same way as inputs.
+The workflow editor reads these as well and associates outputs with Evaluator classes in the component ontology.
+
+{\small
+\begin{lstlisting}[language={Java},frame={single},label={lst:output},caption={An Output annotation}]
+  @Output(type="PriceReal[ProductIndex]")
+  public Evaluation evaluate(Evaluable);
+\end{lstlisting}
+}
+
+After creating OWL classes for each Evaluator, the workflow editor can query the component ontology to determine which Evaluator types are compatible with a given input or output of an Evaluator and only display those to the user composing the agent workflow.
 
 \subsection{Automatic input gathering}
 
@@ -237,15 +280,28 @@ This is because evaluators have individualized sets of inputs, making the code f
 As a result, many evaluators contain duplicate input-fetching code that often dwarfs their core logic in size.
 One might find a given evaluator using any of several generations of input-gathering APIs or possibly even processing its own configuration clauses.
 However, with input and configuration parameter variables now annotated with their domain data types this is no longer the case.
-Since input fields are annotated as such a superclass method can reflectively find them, retrieve their corresponding values from the appropriate locations, and update their values.
+Since input fields are annotated as such a superclass method can reflectively find them, retrieve their values from the Evaluators named by the corresponding tags in the configuration file, and update their values.
 As a result, while one annotates Evaluators to make them work with the MinneTAC ontology generator one can also replace nearly all of their input-reading code with a function call to a superclass method that does the same job.
+This both improves serviceability and reduces the amount of boilerplate code necessary to write Evaluators.
 
 To make use of this, variables used for input data must be class member fields rather than procedure-local variables so they can be accessed reflectively.
 The superclass procedure, \emph{populateInputs}, then loops through the calling Evaluator's fields and retrieves the current value for any that have Input annotations using the same back end Evaluators formerly called directly.
 An Evaluator need only call this method before it begins its computations.
 
 For example, the Evaluator in Appendix \ref{sec:unannotatedeval} calls an old API's \texttt{getInput} method once for each input, which ends up as a procedure-local variable.
-To convert this to use the new input gathering API one moves these variables to the class member level, annotates them with name and type information, then calls \texttt{populateParameters} in the location input values were previously read.  This yields the modified Evaluator shown in Appendix \ref{sec:annotatedeval}.
+To convert this to use the new input gathering API one moves these variables to the class member level, annotates them with name and type information, then calls \texttt{populateParameters} in the location input values were previously read.
+This yields the modified Evaluator shown in Appendix \ref{sec:annotatedeval}.
+
+Using input and output annotations in this way is the final step in consolidating type information.
+When using the annotation-based API to gather input, Evaluators' input-gathering code is linked to annotations and no longer written separately.
+This also constrains Evaluators' core logic to using inputs of the types given in annotations.
+The \texttt{populateInputs} procedure call provides a point at which to do runtime type checking to provide additional enforcement of input and output constraints.
+When we constrain Evaluators to using only types given by their semantic descriptions we eliminate one of the most serious problems with systems that use semantics:  having component code that does not match its semantic description.
+
+
+obtains its value from the Evaluator named by the "probability" tag in its configuration clause.
+
+
 
 \clearpage
 \appendix
@@ -325,7 +381,7 @@ public class SimplePriceEvaluator extends AbstractEvaluator
          required=false, description="...")
   private double[] effectiveDemand;
 
-  @Input(name="allocation", type="QuotaReal[ProductIndex][LeadTimeInteger]",
+  @Input(name="allocation", type="QuantityReal[ProductIndex][LeadTimeInteger]",
          description="...")
   private double[][] allocations;
 
