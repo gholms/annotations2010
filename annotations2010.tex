@@ -228,13 +228,136 @@ Domain information was specified solely in the documentation, making creating th
 Each Evaluator thus had information about its input and output data types defined separately in five locations that had to be kept consistent manually:  its documentation, its ontology, its configuration code, its core logic, and in system configurations.
 As a result, these tended to diverge from one another over time as they were not kept consistent automatically.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Scraps --- bits of text that don't yet have homes} % TODO:  remove this
+% TODO:  fields before and after annotation
+
+\subsection{Automatic input gathering}
 
 In the past Evaluators had to individually devote code to reading their own configuration and input data.
 This is because evaluators have individualized sets of inputs, making the code for fetching input data difficult to factor out.
 As a result, many evaluators contain duplicate input-fetching code that often dwarfs their core logic in size.
-One might find a given evaluator using any of several generations of input-gathering APIs or possibly even processing their own configuration clauses.
+One might find a given evaluator using any of several generations of input-gathering APIs or possibly even processing its own configuration clauses.
+However, with input and configuration parameter variables now annotated with their domain data types this is no longer the case.
+Since input fields are annotated as such a superclass method can reflectively find them, retrieve their corresponding values from the appropriate locations, and update their values.
+As a result, while one annotates Evaluators to make them work with the MinneTAC ontology generator one can also replace nearly all of their input-reading code with a function call to a superclass method that does the same job.
+
+To make use of this, variables used for input data must be class member fields rather than procedure-local variables so they can be accessed reflectively.
+The superclass procedure, \emph{populateInputs}, then loops through the calling Evaluator's fields and retrieves the current value for any that have Input annotations using the same back end Evaluators formerly called directly.
+An Evaluator need only call this method before it begins its computations.
+
+For example, the Evaluator in Appendix \ref{sec:unannotatedeval} calls an old API's \texttt{getInput} method once for each input, which ends up as a procedure-local variable.
+To convert this to use the new input gathering API one moves these variables to the class member level, annotates them with name and type information, then calls \texttt{populateParameters} in the location input values were previously read.  This yields the modified Evaluator shown in Appendix \ref{sec:annotatedeval}.
+
+\clearpage
+\appendix
+
+\section{Code listings}
+
+\subsection{Un-annotated Evaluator example}
+\label{sec:unannotatedeval}
+
+{\small
+\begin{lstlisting}[language={Java}]
+public class SimplePriceEvaluator extends AbstractEvaluator
+{
+  private double probExponent = 1.0;
+
+  public SimplePriceEvaluator(Repository rep,
+                              Configuration config,
+                              Logger logger) {
+    super();
+    init(rep, config, logger, "Revision:5673");
+    getParameterValues();
+  }
+
+  private void getParameterValues() {
+    probExponent = getDoubleParameter("price-probability-exponent",
+                                      probExponent);
+    addDependency("quantity",
+                  getStringParameter("quantity-source", null));
+    addDependency("allocation",
+                  getStringParameter("allocation-source", null));
+    addDependency("regression",
+                  getStringParameter("regression-source", null));
+    addDependency("effective-demand",
+                  getStringParameter("effective-demand-source", null));
+  }
+
+  public Evaluation evaluate(Evaluable thing) {
+    recomputeIfNecessary();
+    // ...
+  }
+
+  private void recomputeIfNecessary() {
+    // ...
+    // Input gathering code
+    // All local variables below are inputs.
+
+    int[] actualDemand = null;
+    double[] effectiveDemand
+        = (double[])getInput(bom, "effective-demand");
+    actualDemand = (int[])getInput(bom, "quantity");
+    double[][] allocations = (double[][])getInput(bom, "allocation");
+    Pricer[] poa = (Pricer[])getInput(bom, "regression");
+
+    // ...
+  }
+}
+\end{lstlisting}
+}
+
+\clearpage
+\subsection{Annotated Evaluator example}
+\label{sec:annotatedeval}
+
+{\small
+\begin{lstlisting}[language={Java}]
+public class SimplePriceEvaluator extends AbstractEvaluator
+{
+  @Parameter(name="price-probability-exponent", defaultValue="1.0",
+             description = "...")
+  private double probExponent;
+
+  @Input(name="quantity", type="QuantityInteger[ProductIndex]",
+         required=false, description="...")
+  private int[] actualDemand;
+
+  @Input(name="effective-demand", type="QuantityReal[ProductIndex]",
+         required=false, description="...")
+  private double[] effectiveDemand;
+
+  @Input(name="allocation", type="QuotaReal[ProductIndex][LeadTimeInteger]",
+         description="...")
+  private double[][] allocations;
+
+  @Input(name="regression", type="Pricer[ProductIndex]", description="...")
+  private Pricer[] poa;
+
+  public SimplePriceEvaluator(Repository rep,
+                              Configuration config,
+                              Logger logger) {
+    super();
+    init(rep, config, logger, "Revision:6347");
+    populateParameters();
+  }
+
+  @Output(type="PriceReal[ProductIndex]", description="...")
+  public Evaluation evaluate(Evaluable thing) {
+    recomputeIfNecessary();
+    // ...
+  }
+
+  private void recomputeIfNecessary() {
+    // ...
+    // Input gathering code
+    // All member variables that correspond to inputs are populated below.
+
+    populateInputs();
+
+    // ...
+  }
+}
+\end{lstlisting}
+}
 
 \bibliographystyle{plain}
 \bibliography{annotations2010}
