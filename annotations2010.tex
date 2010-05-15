@@ -163,9 +163,21 @@ We can also benefit from access to component source code by employing methods th
 
 \subsection{WSDL-S}
 
-TODO:  write me
+Rajasekaran et al~\cite{rajasekaran2005enhancing} proposed WSDL-S, an extension to the industry standard Web Services Description Language\footnote{http://www.w3.org/TR/wsdl20/}, an XML-based language that provides a model for describing web services.
+WSDL-S adds semantic descriptions to the language that allows one to search for services based on their functional aspects rather than only by their names.
+Using a rich description language both improves discoverability and reduces the chance of misinterpretation.
+
+Since there is no all-encompassing standard for types in WSDL-S one has to provide some form of compatibility when describing a service's functionality to ensure clients are capable of interoperating correctly.
+This can take any of several forms, the most common of which are using types that clients are assumed to understand, extending such a type and providing a downcasting operation, and creating a type and providing mappings to types that clients can recognize.
+This makes it possible for WSDL-S to remain applicable to as wide a range of services as possible.
+
+WSDL-S's companion tools, the Semantic Description Generator Module and METEOR-S~\cite{rajasekaran2005enhancing}, allow one to generate the semantic descriptions WSDL-S needs and provide an API for performing such queries.
+These tools provide a way to spatially link operational code with semantic descriptions much like the Spring Framework, while retaining the generality of the WINGS system.
+However, this suite fails to enforce coherence between semantic descriptions and their corresponding code, as they are specified independently of one another even though they may be located adjacent to one another.
+We discuss our solution to this problem in section \ref{sec:approach}, where we describe our approach to applying semantic descriptions to the MinneTAC agent.
 
 \section{Approach}
+\label{sec:approach}
 
 We aim to simplify MinneTAC's configuration process by creating a graphical editor for agent workflow configurations that draws upon ideas from Kim et al's Composition Analysis Tool~\cite{kim2004intelligent} as well as those from the systems surveyed in section \ref{sec:challenges}.
 A graphical editor alone does nothing to fix the problem arising from the sheer number of Evaluators one has to choose from and thus be familiar with; at any point during workflow composition one may have to choose from a number of components when adding or replacing components.
