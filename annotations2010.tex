@@ -221,15 +221,17 @@ Keeping the number of types small reduces the likelihood of this problem.
 \end{description}
 
 The choice of size for the domain term ontology represents an important tradeoff between specificity and usability.
-A small domain term ontology affords easier usability in that there are few types to learn when trying to understand the domain's types, but those types are necessarily more generic than those from a larger term ontology, leading to ambiguity.
-If domain types are too generic then Evaluator lists remain too large because too many Evaluators match queries against component ontologies.
+A small domain term ontology affords easier usability in that there are few types to learn when trying to assign input and output types to new Evaluators.
+However, as they are few in number, these types are necessarily more generic than those from a larger domain term ontology, leading to ambiguity.
+If domain types are too generic then so many Evaluators will match queries against their ontologies that the lists of valid Evaluators fail to be trimmed down to understandable levels.
 This at least partially negates the benefit of using a workflow editor that makes use of semantic information.
+
 However, opting toward a larger domain term ontology makes it difficult to choose the correct type out of the plethora of types that already exist when writing a new Evaluator.
 In such a situation it may be easier to add still more new domain types than to decide whether any existing types are specific enough.
 This reduces the utility of the workflow editor in the opposite way:  reasonable options may be overlooked.
-For example, this is a problem for service-oriented applications like those that use Web Services Description Language (WSDL)~\footnote{http://www.w3.org/TR/wsdl20/}.
-While semantic discovery systems like those proposed by Rajasekaran et al in 2005~\cite{rajasekaran2005enhancing} and later implemented in WSDL 2.0 help alleviate problems specific to naming, the semantic descriptions such systems use rely on lists of types and other tag values for which there is no standardization.
-Thus services are free to define their own, differing notations for the same purposes, creating duplication and limiting the usefulness of semantic searches.
+For instance, this is a problem for some service-oriented applications like those that use Web Services Description Language (WSDL)~\footnote{http://www.w3.org/TR/wsdl20/}.
+While semantic discovery systems like WSDL-S~\cite{rajasekaran2005enhancing} help alleviate problems specific to naming, the semantic descriptions such systems use rely on lists of types and other tag values for which there is no standardization.
+Thus services are free to define their own, differing notations for the same purposes, creating duplication and limiting the utility of semantic searches.
 Where the proper balance between larger, more specific domain term ontologies and smaller, more understandable domain term ontologies depends heavily on the domain in question.
 
 \subsection{Using domain type information}
@@ -290,7 +292,8 @@ The workflow editor reads these as well and associates outputs with Evaluator cl
 \end{lstlisting}
 }
 
-After creating OWL classes for each Evaluator, the workflow editor can query the component ontology to determine which Evaluator types are compatible with a given input or output of an Evaluator and only display those to the user composing the agent workflow.
+After creating OWL classes for each Evaluator, the workflow editor can query the component ontology to determine which Evaluator types are compatible with a given input or output type and only display those to the user composing the agent workflow.
+An example of such a query's result appears in appendix \ref{sec:ontology-query}.
 
 \subsection{Automatic input gathering}
 
@@ -325,7 +328,7 @@ TODO:  write me
 
 * splitting up type attributes
 
-\section{Overview}
+\section{Summary}
 
 TODO:  write me
 
@@ -444,5 +447,48 @@ public class SimplePriceEvaluator extends AbstractEvaluator
 }
 \end{lstlisting}
 }
+
+\clearpage
+\section{Ontology query example}
+\label{sec:ontology-query}
+
+This example shows the results of a query for compatible inputs and outputs for an EffectiveDemand data type.
+The ``Superclasses'' and ``Usage'' sections indicate that EffectiveDemand is a valid input type for a SimplePriceEvaluator and a valid output for an EffectiveDemandEvaluator.
+
+\subsection*{Asserted class hierarchy}
+
+\begin{itemize}
+\renewcommand{\labelitemi}{$\bullet$}
+\renewcommand{\labelitemii}{$\bullet$}
+\renewcommand{\labelitemiii}{$\bullet$}
+    \item Thing
+    \begin{itemize}
+    \item Input\_Output
+        \begin{itemize}
+        \item EffectiveDemand
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Superclasses}
+
+\begin{itemize}
+\item Input\_Output
+\item hasDataType some QuantityArray
+\item \emph{isInputOf some SimplePriceEvaluator}
+\item \emph{isOutputOf some SimplePriceEvaluator}
+\end{itemize}
+
+\subsection*{Disjoints}
+
+ed1\_out, sp1\_in
+
+\subsection*{Usage}
+
+\begin{itemize}
+\item ed1\_out: EffectiveDemand
+\item sp1\_in: EffectiveDemand
+\item \emph{SimplePriceEvaluator $\subseteq$ hasInput some EffectiveDemand}
+\end{itemize}
 
 \end{document}
