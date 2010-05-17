@@ -1,10 +1,12 @@
 \documentclass{article}
 
+\usepackage{graphicx}
 \usepackage{listings}
 
 \lstset{
     captionpos=b
 }
+
 \begin{document}
 
 % TODO:  need a title
@@ -12,41 +14,49 @@
 
 \author{Garrett Holmstrom\thanks{Contact: Garrett Holmstrom, email: garrett@cs.umn.edu}, Dept. of Computer Science and Engineering \\ University of Minnesota
 }
-% TODO:  Add John Collins
-
-% FIXME:  Why doesn't the date show up?
-\date{}
 
 \maketitle
 
-\begin{abstract}
-\begin{quote}
-TODO:  write me
-\end{quote}
-\end{abstract}
+TODO:  Add John Collins to author list
 
 \section{Introduction}
 
-TODO:  In the new intro, just write a short paragraph about the attractions and problems of highly-configurable systems, point out that the MinneTAC agent is such a system, and list your main contributions, which would include a method for coupling source code with semantic descriptions, and for using semantic descriptions to factor out significant quantities of source code, thereby reducing duplicated (and uncoordinated) content by a large factor.
+TODO:  something about attractions and problems of highly-configurable systems \\
+Benefit:  easy to experiment and test with? \\
+Benefit:  separation of concerns? \\
+Benefit:  scalability? \\
+Problem:  large lists of components? \\
+Problem:  code duplication/lack of coordination?
+
+MinneTAC, our agent in the supply chain trading agent competition\footnote{http://www.sics.se/tac/}, is such a system, composed of a number of small, single-purpose analysis modules that are composed into workflows by connecting inputs to compatible outputs.
+In this paper we demonstrate a method of coupling source code with semantic descriptions and for using semantic descriptions to factor out significant quantities of source code, thereby reducing duplicated and uncoordinated content by a large factor.
 
 \subsection{Supply chain trading agent competition}
-TODO:  basic information about TAC-SCM  (Suggestions?)
+
+A supply chain trading agent competition (TAC SCM) involves a number of autonomous agent playing the part of competing manufacturers of personal computers.
+This includes competing in procurement markets for components, managing production schedules and inventories, and competing in sales markets for customers.
+At the beginning of a game agents have neither inventories nor funds; they must borrow funds to build up inventories and then assemble and ship products to customers as they fulfill orders until the game ends, at which point the agent with the most funds wins~\cite{Collins08ECRA}.
+
+Supply chain management tends to lead toward complex agent designs because each agent must not only operate in several markets simultaneously (supplier markets and customer markets), but also coordinate these market activities with other major decision processes, such as production scheduling and inventory management~\cite{Ketter08TADAbook}.
 
 \subsection{MinneTAC architecture}
 
-Our TAC-SCM agent, MinneTAC, is a Java application designed to minimize coupling between its components to support independent work on multiple lines of research.
+Our TAC SCM agent, MinneTAC, is a Java application designed to minimize coupling between its components to support independent work on multiple lines of research.
 To that end we use a component-oriented approach that allows one to easily choose which components to use for a given agent workflow.
 This makes it simple to non-disruptively create drop-in replacements for individual components or related groups of components.
 It additionally allows for easy comparisons of the agent's performance using alternative components in otherwise identical scenarios.
-% TODO:  should we add more info here?
 
-A MinneTAC agent consists of a set of components for each major decision process in the TAC-SCM game:  \textsc{Procurement}, \textsc{Production}, \textsc{Sales}, and \textsc{Shipping}.
+A MinneTAC agent consists of a set of components for each major decision process in the TAC SCM game:  \textsc{Procurement}, \textsc{Production}, \textsc{Sales}, and \textsc{Shipping}.
 All data to be shared among components are kept in the \textsc{Repository}, which plays the role of the Blackboard in the \emph{Blackboard} pattern\cite{Busch96}.
 The \textsc{Communications} component manages interaction with the game server.
 Finally, the \textsc{Oracle} component contains a large number of smaller components that maintain models of markets and inventory and perform analyses and predictions.
 Ideally, each of these major components depends solely upon the \textsc{Repository}, which completely separates major decision processes and allowing researchers to work on them independently.
 
-TODO:  hub-and-spoke diagram here?
+\begin{figure}
+\centering
+\includegraphics{figures/arch}
+\caption{MinneTAC architecture.  Arrows indicate dependencies.}
+\end{figure}
 
 Since decision components cannot depend on one another, they communicate using \emph{evaluations} that are accessible through the various data elements in the \textsc{Repository}.
 Any calculations or analyses that are performed on \textsc{Repository} data can be encapsulated in the form of evaluations and made available to all other components via the \textsc{Repository}.
@@ -64,7 +74,11 @@ The \textsc{Oracle} itself merely uses its configuration data to create and conf
 \emph{ConfiguredObject} is an abstract class whose instances have names and some ability to configure themselves, given an appropriate clause from a XML configuration file.
 The \textsc{Oracle} creates ConfiguredObject instances and keeps track of them by mapping their names as given in the configuration file to instances.
 
-TODO:  UML diagram here?
+\begin{figure}
+\centering
+\includegraphics{figures/oracle-classes}
+\caption{Principal classes in the \textsc{Oracle} component}
+\end{figure}
 
 During initialization, the \textsc{Oracle} processes a configuration clause that specifies which ConfiguredObject instances to create, and for each such instance, what name to give it, the values of any parameters necessary to configure it, and the names of any instances it queries for input data.
 Code listing~\ref{lst:xconf-simpleprice} illustrates such a configuration clause for an Evaluator with one parameter and four inputs.
@@ -306,12 +320,18 @@ As a result, while one annotates Evaluators to make them work with the MinneTAC 
 This both improves serviceability and reduces the amount of boilerplate code necessary to write Evaluators.
 
 To make use of this, variables used for input data must be class member fields rather than procedure-local variables so they can be accessed reflectively.
-The superclass procedure, \emph{populateInputs}, then loops through the calling Evaluator's fields and retrieves the current value for any that have Input annotations using the same back end Evaluators formerly called directly.
+The superclass procedure, \emph{\texttt{populateInputs}}, then loops through the calling Evaluator's fields and retrieves the current value for any that have Input annotations using the same back end Evaluators formerly called directly.
 An Evaluator need only call this method before it begins its computations.
 
 For example, the Evaluator in Appendix \ref{sec:unannotatedeval} calls an old API's \texttt{getInput} method once for each input, which ends up as a procedure-local variable.
-To convert this to use the new input gathering API one moves these variables to the class member level, annotates them with name and type information, then calls \texttt{populateParameters} in the location input values were previously read.
-This yields the modified Evaluator shown in Appendix \ref{sec:annotatedeval}.
+To convert this to use the new input gathering API one moves these variables to the class member level, annotates them with name and type information, then calls \texttt{populateInputs} in the location input values were previously read.
+
+We can further reduce the amount of boilerplate code by applying the same procedure to Evaluator configuration parameters.
+While parameters do not contribute to the workflow composition problem, they are still necessary for usability, as they must appear in the agent workflow editor.
+Similarly to input gathering, calls to \texttt{getStringParameter} or similar procedures are replaced with a single call to \emph{\texttt{populateParameters}}.
+Unlike inputs, parameters remain constant throughout the entire game, so one typically calls \texttt{populateParameters} at Evaluator construction time.
+
+Updating the Evaluator from appendix \ref{sec:unannotatedeval} to use these annotation-based APIs yields the modified Evaluator shown in appendix \ref{sec:annotatedeval}.
 
 Using input and output annotations in this way is the final step in consolidating type information.
 When using the annotation-based API to gather input, Evaluators' input-gathering code is linked to annotations and no longer written separately.
@@ -319,17 +339,18 @@ This also constrains Evaluators' core logic to using inputs of the types given i
 The \texttt{populateInputs} procedure call provides a point at which to do runtime type checking to provide additional enforcement of input and output constraints.
 When we constrain Evaluators to using only types given by their semantic descriptions we eliminate one of the most serious problems with systems that use semantics:  having component code that does not match its semantic description.
 
-\section{Future work}
+\section{Conclusions and future work}
 
-TODO:  write me
+One major limitation of our current design is that it supports only one output type per Evaluator.
+While this is sufficient for most Evaluators, in some cases it is better for an Evaluator to be capable of returning different results in certain contexts, such as when requesting information about specific products.
+One possible way of alleviating this problem is allowing outputs to carry names in the same way as inputs.
+Evaluators that wish to use outputs other than the default, unnamed output from other Evaluators may then specify which output name to use in the agent workflow configuration file.
 
-* named outputs
+In their current forms, input and output type annotations are specified by strings with a specific syntax (e.g., ``QuantityReal[ProductID]'').
+This makes semantic description generators have to parse formatted text to discern which types annotations refer to.
+We may be able to simplify this process by specifying array cell types and index types as separate attributes to Input and Output annotations.
 
-* splitting up type attributes
-
-\section{Summary}
-
-TODO:  write me
+TODO:  write a quick summary and maybe a little about our contributions (probably after working out what the Introduction section should say)
 
 \clearpage
 \bibliographystyle{plain}

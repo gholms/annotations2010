@@ -3,6 +3,6 @@
 *.blg
 *.dvi
 *.log
-*.pdf
-*.ps
+/*.pdf
+/*.ps
 *.synctex.gz
