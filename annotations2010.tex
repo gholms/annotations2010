@@ -12,7 +12,7 @@
 % TODO:  need a title
 \title{Super Awesome Title Goes Here}
 
-\author{Garrett Holmstrom\thanks{Contact: Garrett Holmstrom, email: garrett@cs.umn.edu}, Dept. of Computer Science and Engineering \\ University of Minnesota
+\author{Garrett Holmstrom\thanks{Contact: Garrett Holmstrom, email: garrett@cs.umn.edu}\\ Dept. of Computer Science and Engineering \\ University of Minnesota
 }
 
 \maketitle
@@ -46,16 +46,16 @@ To that end we use a component-oriented approach that allows one to easily choos
 This makes it simple to non-disruptively create drop-in replacements for individual components or related groups of components.
 It additionally allows for easy comparisons of the agent's performance using alternative components in otherwise identical scenarios.
 
-A MinneTAC agent consists of a set of components for each major decision process in the TAC SCM game:  \textsc{Procurement}, \textsc{Production}, \textsc{Sales}, and \textsc{Shipping}.
+As shown in Figure~\ref{fig:arch} MinneTAC agent consists of a set of components for each major decision process in the TAC SCM game:  \textsc{Procurement}, \textsc{Production}, \textsc{Sales}, and \textsc{Shipping}.
 All data to be shared among components are kept in the \textsc{Repository}, which plays the role of the Blackboard in the \emph{Blackboard} pattern\cite{Busch96}.
 The \textsc{Communications} component manages interaction with the game server.
 Finally, the \textsc{Oracle} component contains a large number of smaller components that maintain models of markets and inventory and perform analyses and predictions.
 Ideally, each of these major components depends solely upon the \textsc{Repository}, which completely separates major decision processes and allowing researchers to work on them independently.
 
-\begin{figure}
+\begin{figure}[ht]
 \centering
-\includegraphics{figures/arch}
-\caption{MinneTAC architecture.  Arrows indicate dependencies.}
+\includegraphics[width=0.7\textwidth]{figures/arch}
+\caption{\label{fig:arch}MinneTAC architecture.  Arrows indicate dependencies.}
 \end{figure}
 
 Since decision components cannot depend on one another, they communicate using \emph{evaluations} that are accessible through the various data elements in the \textsc{Repository}.
@@ -74,9 +74,9 @@ The \textsc{Oracle} itself merely uses its configuration data to create and conf
 \emph{ConfiguredObject} is an abstract class whose instances have names and some ability to configure themselves, given an appropriate clause from a XML configuration file.
 The \textsc{Oracle} creates ConfiguredObject instances and keeps track of them by mapping their names as given in the configuration file to instances.
 
-\begin{figure}
+\begin{figure}[ht]
 \centering
-\includegraphics{figures/oracle-classes}
+\includegraphics[width=\textwidth]{figures/oracle-classes}
 \caption{Principal classes in the \textsc{Oracle} component}
 \end{figure}
 
