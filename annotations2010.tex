@@ -140,10 +140,9 @@ Central to this framework is its Inversion of Control container, which provides 
 Where the Spring Framework differs from earlier versions of EJB is in how its component metadata are specified:  rather than using a configuration file or required API, one adds annotations to regular Java classes that specify which fields, methods, and classes need dependency injection.
 The Spring Framework proved to be so successful that the EJB 3.0 specification borrowed so heavily from Spring that it was nearly completely rewritten.
 
-Specifying component metadata with code annotations links metadata with the code spatially so they are more likely to remain consistent than metadata specified in separate files without losing the ability to take advantage of them at runtime.
-However, using annotations to regular Java classes to supply these metadata comes at the cost of static type checking, relying on the programmer to assert that components implement the interfaces their annotations claim to support until such claims can be verified at runtime.
-
-% We have this problem as well, but we use semantics to provide a degree of assurance that types are compatible at configuration time.
+Using source code annotations to supply component metadata links metadata with the code spatially.
+This makes each component's metadata and code more likely to remain consistent than when they are specified in separate files, while still retaining the ability to take advantage of the metadata at runtime.
+However, this method comes at the cost of static type checking --- systems built this way rely on programmers to assert that components implement the interfaces their annotations claim to support until such claims can be verified at runtime.
 
 \subsection{WINGS}
 
