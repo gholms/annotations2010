@@ -16,24 +16,22 @@
 
 \maketitle
 
-\begin{quote}
 \begin{abstract}
 
-TODO
+Configurable, metadata-driven systems provide an attractive design philosophy for large, modular applications due to their scalable, easy-to-test natures.
+However, their size still presents challenges to developers in that it is difficult to avoid duplicating code, and to users in that one must be familiar with a very large number of components to be able to configure such a system effectively.
+In this paper we present a method of simultaneously reducing the sizes of these lists and the amount of redundant component code using source code annotations.
+Using these annotations as the basis for an ontology from which we can deduce which components are compatible with one another, we are able to reduce the number of components one must be familiar with to create a system configuration, along with the cognitive burden of doing so, to an acceptable level.
+We additionally employ these annotations to eliminate a large amount of redundant, uncoordinated code and enforce a link between components' behavior and semantic metadata.
 
 \end{abstract}
-\end{quote}
 
 \section{Introduction}
 
-TODO:  something about attractions and problems of highly-configurable systems \\
-Benefit:  easy to experiment and test with? \\
-Benefit:  separation of concerns? \\
-Benefit:  scalability? \\
-Problem:  large lists of components? \\
-Problem:  code duplication/lack of coordination?
+A recent trend toward writing highly-configurable, metadata-driven systems has emerged since such systems address common problems with complex systems, such as ease of testing and experimentation and separation of concerns, while maintaining scalability.
+However, they also present usability challenges for developers due to the ease with which code may be duplicated, as well as users due to the large, incomprehensible lists of components one has to recognize in order to configure such systems effectively.
 
-MinneTAC, our agent in the supply chain trading agent competition\footnote{http://www.sics.se/tac/}, is such a system, composed of a number of small, single-purpose analysis modules that are composed into workflows by connecting inputs to compatible outputs.
+MinneTAC, our agent in the supply chain trading agent competition\footnote{http://tac.cs.umn.edu/}, is such a system, composed of a number of small, single-purpose analysis modules that are composed into workflows by connecting inputs to compatible outputs.
 In this paper we demonstrate a method of coupling source code with semantic descriptions and for using semantic descriptions to factor out significant quantities of source code, thereby reducing duplicated and uncoordinated content by a large factor.
 
 \subsection{Supply chain trading agent competition}
@@ -51,8 +49,8 @@ To that end we use a component-oriented approach that allows one to easily choos
 This makes it simple to non-disruptively create drop-in replacements for individual components or related groups of components.
 It additionally allows for easy comparisons of the agent's performance using alternative components in otherwise identical scenarios.
 
-As shown in Figure~\ref{fig:arch} MinneTAC agent consists of a set of components for each major decision process in the TAC SCM game:  \textsc{Procurement}, \textsc{Production}, \textsc{Sales}, and \textsc{Shipping}.
-All data to be shared among components are kept in the \textsc{Repository}, which plays the role of the Blackboard in the \emph{Blackboard} pattern\cite{Busch96}.
+As shown in Figure~\ref{fig:arch}, MinneTAC agent consists of a set of components for each major decision process in the TAC SCM game:  \textsc{Procurement}, \textsc{Production}, \textsc{Sales}, and \textsc{Shipping}.
+All data to be shared among components are kept in the \textsc{Repository}, which plays the role of the Blackboard in the \emph{Blackboard} pattern~\cite{Busch96}.
 The \textsc{Communications} component manages interaction with the game server.
 Finally, the \textsc{Oracle} component contains a large number of smaller components that maintain models of markets and inventory and perform analyses and predictions.
 Ideally, each of these major components depends solely upon the \textsc{Repository}, which completely separates major decision processes and allowing researchers to work on them independently.
@@ -77,15 +75,16 @@ The resulting \textsc{Oracle} component is essentially a framework for a set of 
 Most of these sub-components are Evaluators, though other types also exist.
 The \textsc{Oracle} itself merely uses its configuration data to create and configure instances of Evaluators and other subclasses of ConfiguredObject.
 \emph{ConfiguredObject} is an abstract class whose instances have names and some ability to configure themselves, given an appropriate clause from a XML configuration file.
-The \textsc{Oracle} creates ConfiguredObject instances and keeps track of them by mapping their names as given in the configuration file to instances.
+The \textsc{Oracle} creates ConfiguredObject instances and keeps track of them by mapping their names as given in the configuration file to instances.  Figure \ref{fig:oracle-classes} describes this relationship in more detail.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{figures/oracle-classes}
-\caption{Principal classes in the \textsc{Oracle} component}
+\caption{\label{fig:oracle-classes}Principal classes in the \textsc{Oracle} component}
 \end{figure}
 
 During initialization, the \textsc{Oracle} processes a configuration clause that specifies which ConfiguredObject instances to create, and for each such instance, what name to give it, the values of any parameters necessary to configure it, and the names of any instances it queries for input data.
+A typical agent configuration contains anywhere from fifty to one hundred or more configuration clauses; one per ConfiguredObject.
 Code listing~\ref{lst:xconf-simpleprice} illustrates such a configuration clause for an Evaluator with one parameter and four inputs.
 
 {\small
@@ -110,7 +109,7 @@ Taken together, a set of Evaluators and other ConfiguredObjects comprises a dire
 MinneTAC's modular architecture allows one to easily substitute components for one another for comparative purposes or to create an entirely new set of components with only minimal knowledge of how the agent works internally.
 Additionally, using configuration files to define graphs of components allows developers to add new components without disrupting other developers' configurations.
 
-\section{Usability challenges}
+\section{Usability challenges and existing solutions}
 \label{sec:challenges}
 
 MinneTAC Evaluators gather input data of specific types from zero or more other Evaluators, then use these data to produce one output of a given type.
@@ -331,6 +330,8 @@ An Evaluator need only call this method before it begins its computations.
 For example, the Evaluator in Appendix \ref{sec:unannotatedeval} calls an old API's \texttt{getInput} method once for each input, which ends up as a procedure-local variable.
 To convert this to use the new input gathering API one moves these variables to the class member level, annotates them with name and type information, then calls \texttt{populateInputs} in the location input values were previously read.
 
+\subsection{Automatic configuration parameter gathering}
+
 We can further reduce the amount of boilerplate code by applying the same procedure to Evaluator configuration parameters.
 While parameters do not contribute to the workflow composition problem, they are still necessary for usability, as they must appear in the agent workflow editor.
 Similarly to input gathering, calls to \texttt{getStringParameter} or similar procedures are replaced with a single call to \emph{\texttt{populateParameters}}.
@@ -346,6 +347,12 @@ When we constrain Evaluators to using only types given by their semantic descrip
 
 \section{Conclusions and future work}
 
+Source code annotations are becoming increasingly common in modern programming languages, being supported by Java, Python, and extensions to C and C++.
+In this paper we employ code annotations to specify semantic metadata for MinneTAC's Evaluators, which allows us to generate ontological classes for each Evaluator and query these ontologies to substantially reduce the number of Evaluators an agent workflow designer must be familiar with at once.
+This reduces the cognitive burden of workflow composition to the point where designing a MinneTAC workflow is within the reach of substantially more users.
+We additionally use these annotations to eliminate a large amount of redundant code in each component in a way that helps enforce coherence between annotations and component logic.
+Though we have not seen all of the methods we employ to do so used at once, we expect the use of code annotations for attribute-oriented programming to become more common in the future.
+
 One major limitation of our current design is that it supports only one output type per Evaluator.
 While this is sufficient for most Evaluators, in some cases it is better for an Evaluator to be capable of returning different results in certain contexts, such as when requesting information about specific products.
 One possible way of alleviating this problem is allowing outputs to carry names in the same way as inputs.
@@ -355,11 +362,9 @@ In their current forms, input and output type annotations are specified by strin
 This makes semantic description generators have to parse formatted text to discern which types annotations refer to.
 We may be able to simplify this process by specifying array cell types and index types as separate attributes to Input and Output annotations.
 
-TODO:  write a quick summary and maybe a little about our contributions (probably after working out what the Introduction section should say)
-
 \section*{Acknowledgements}
 
-TODO
+We would like to thank advisor John Collins and Ali Abu-El-Haj for their work on the MinneTAC ontology.
 
 \clearpage
 \bibliographystyle{plain}
