@@ -20,9 +20,10 @@
 
 Configurable, metadata-driven systems provide an attractive design philosophy for large, modular applications due to their scalable, easy-to-test natures.
 However, their size still presents challenges to developers in that it is difficult to avoid duplicating code, and to users in that one must be familiar with a very large number of components to be able to configure such a system effectively.
-In this paper we present a method of simultaneously reducing the sizes of these lists and the amount of redundant component code using source code annotations.
-Using these annotations as the basis for an ontology from which we can deduce which components are compatible with one another, we are able to reduce the number of components one must be familiar with to create a system configuration, along with the cognitive burden of doing so, to an acceptable level.
-We additionally employ these annotations to eliminate a large amount of redundant, uncoordinated code and enforce a link between components' behavior and semantic metadata.
+In this paper I present a method of simultaneously reducing the sizes of these lists and the amount of redundant component code using source code annotations.
+I use these annotations as a basis for an ontology that in turn helps reduce the number of components one must be familiar with to create a system configuration.
+This helps reduce the cognitive burden of using the system to a reasonable level.
+I additionally employ these annotations to eliminate a large amount of redundant, uncoordinated code and enforce a link between components' behavior and semantic metadata.
 
 \end{abstract}
 
@@ -32,7 +33,7 @@ A recent trend toward writing highly-configurable, metadata-driven systems has e
 However, they also present usability challenges for developers due to the ease with which code may be duplicated, as well as users due to the large, incomprehensible lists of components one has to recognize in order to configure such systems effectively.
 
 MinneTAC, our agent in the supply chain trading agent competition\footnote{http://tac.cs.umn.edu/}, is such a system, composed of a number of small, single-purpose analysis modules that are composed into workflows by connecting inputs to compatible outputs.
-In this paper we demonstrate a method of coupling source code with semantic descriptions and for using semantic descriptions to factor out significant quantities of source code, thereby reducing duplicated and uncoordinated content by a large factor.
+In this paper I demonstrate a method of generating semantic descriptions from source code annotations and then using these semantic descriptions to factor out significant quantities of duplicated and uncoordinated source code.
 
 \subsection{Supply chain trading agent competition}
 
@@ -108,6 +109,13 @@ evaluator that uses one parameter and several inputs}]
 Taken together, a set of Evaluators and other ConfiguredObjects comprises a directed graph of modular components that constitute the majority of the functional code used in a MinneTAC agent workflow.
 MinneTAC's modular architecture allows one to easily substitute components for one another for comparative purposes or to create an entirely new set of components with only minimal knowledge of how the agent works internally.
 Additionally, using configuration files to define graphs of components allows developers to add new components without disrupting other developers' configurations.
+For example, figure \ref{fig:acolyte} depicts the evaluation chain that sets sales quotas and prices in a relatively simple MinneTAC workflow.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{figures/acolyte}
+\caption{\label{fig:acolyte}Evaluator chain for sales quota and pricing}
+\end{figure}
 
 \section{Usability challenges and existing solutions}
 \label{sec:challenges}
@@ -160,7 +168,8 @@ The Spring Framework proved to be so successful that the EJB 3.0 specification b
 
 Using source code annotations to supply component metadata links metadata with the code spatially.
 This makes each component's metadata and code more likely to remain consistent than when they are specified in separate files, while still retaining the ability to take advantage of the metadata at runtime.
-However, this method comes at the cost of static type checking --- systems built this way rely on programmers to assert that components implement the interfaces their annotations claim to support until such claims can be verified at runtime.
+However, this method comes at the cost of static type checking.
+Systems built this way provide no guarantees that components implement the interfaces their annotations claim to support, causing errors stemming from this to fail to appear until runtime.
 
 \subsection{WINGS}
 
@@ -175,8 +184,8 @@ This is primarily a result of the system's design.
 WINGS is a much more generalized system than we need that solves a subtly different problem, namely linking disparate applications together.
 Since it needs to support software for which modifiable source may not be available it necessarily must support semantic descriptions that are decoupled from component code and cannot rely on internal annotations.
 
-With MinneTAC we can benefit from a simpler, ``pipe-and-filter'' architecture that makes system design using semantics easier.
-We can also benefit from access to component source code by employing methods that use Java annotations, which help link component code with their semantic descriptions.
+MinneTAC can benefit from a simpler, ``pipe-and-filter'' architecture that makes system design using semantics easier.
+It can also benefit from access to component source code by employing methods that use Java annotations, which help link component code with their semantic descriptions.
 
 \subsection{WSDL-S}
 
@@ -191,28 +200,28 @@ This makes it possible for WSDL-S to remain applicable to as wide a range of ser
 WSDL-S's companion tools, the Semantic Description Generator Module and METEOR-S~\cite{rajasekaran2005enhancing}, allow one to generate the semantic descriptions WSDL-S needs and provide an API for performing such queries.
 These tools provide a way to spatially link operational code with semantic descriptions much like the Spring Framework, while retaining the generality of the WINGS system.
 However, this suite fails to enforce coherence between semantic descriptions and their corresponding code, as they are specified independently of one another even though they may be located adjacent to one another.
-We discuss our solution to this problem in section \ref{sec:approach}, where we describe our approach to applying semantic descriptions to the MinneTAC agent.
+I discuss my solution to this problem in section \ref{sec:approach}, where I describe an approach to applying semantic descriptions to the MinneTAC agent.
 
 \section{Approach}
 \label{sec:approach}
 
-We aim to simplify MinneTAC's configuration process by creating a graphical editor for agent workflow configurations that draws upon ideas from Kim et al's Composition Analysis Tool~\cite{kim2004intelligent} as well as those from the systems surveyed in section \ref{sec:challenges}.
+I aim to simplify MinneTAC's configuration process by creating a graphical editor for agent workflow configurations that draws upon ideas from Kim et al's Composition Analysis Tool~\cite{kim2004intelligent} as well as those from the systems surveyed in section \ref{sec:challenges}.
 A graphical editor alone does nothing to fix the problem arising from the sheer number of Evaluators one has to choose from and thus be familiar with; at any point during workflow composition one may have to choose from a number of components when adding or replacing components.
-By systematically generating a list of all of the valid choices throughout the workflow building process we can take context into account and only display Evaluators whose input or output data types are compatible with a given Evaluator.
+Systematically generating a list of all of the valid choices throughout the workflow building process lets one take context into account and only display Evaluators whose input or output data types are compatible with a given Evaluator.
 This reduces the number of Evaluators users have to be familiar with at each step to only a small subset of all Evaluators, improving the chances that the agent will run correctly and making it simpler to write new components that are likely to work as intended.
 
 \subsection{MinneTAC Ontology}
 
-We accomplish this by creating a knowledge base of Evaluators and their input and output parameters using Web Ontology Language Description Logic (OWL-DL)\footnote{http://www.w3.org/TR/owl2-overview/}.
+I accomplish this by creating a knowledge base of Evaluators and their input and output parameters using Web Ontology Language Description Logic (OWL-DL)\footnote{http://www.w3.org/TR/owl2-overview/}.
 This semantic information allows us to query which Evaluators are compatible with one another's inputs and outputs.
 Additionally, this gives us a way to programmatically check workflow configurations for consistency at configuration time rather than at runtime.
 
 For this scheme to work one needs to define a \emph{component ontology} for each Evaluator that contains an ontological class describing its inputs and outputs.
 These classes are unified by a top-level \emph{domain term ontology} that describes the data types used to represent inputs and outputs and their associated constraints.
 The number of primitive types MinneTAC uses is small, consisting of about ten types, including prices, probabilities, and quantities.
-We take advantage of this domain knowledge by placing only these primitive types in the domain term ontology and letting component ontologies define composite types on their own using templates for composite types that are also specified in the domain term ontology.
+I take advantage of this domain knowledge by placing only these primitive types in the domain term ontology and letting component ontologies define composite types on their own using templates for composite types that are also specified in the domain term ontology.
 Simple OWL rules determine whether composite types specified by different component ontologies are compatible or not.
-Employing our knowledge of the domain in this way solves a number of problems that typically plague workflow composition systems:
+Employing knowledge of the domain in this way solves a number of problems that typically plague workflow composition systems:
 
 \begin{description}
 
@@ -249,11 +258,11 @@ This reduces the utility of the workflow editor in the opposite way:  reasonable
 For instance, this is a problem for some service-oriented applications like those that use Web Services Description Language (WSDL)~\footnote{http://www.w3.org/TR/wsdl20/}.
 While semantic discovery systems like WSDL-S~\cite{rajasekaran2005enhancing} help alleviate problems specific to naming, the semantic descriptions such systems use rely on lists of types and other tag values for which there is no standardization.
 Thus services are free to define their own, differing notations for the same purposes, creating duplication and limiting the utility of semantic searches.
-Where the proper balance between larger, more specific domain term ontologies and smaller, more understandable domain term ontologies depends heavily on the domain in question.
+Where the proper balance between larger, more specific domain term ontologies and smaller, more understandable domain term ontologies lies depends heavily on the domain in question.
 
 \subsection{Using domain type information}
 
-To fill out the component ontology we need to define an ontological class for each Evaluator.
+To fill out the component ontology one first needs to define an ontological class for each Evaluator.
 With our previous code base this was impossible to do programmatically because Java only had knowledge of the native data types each Evaluator used, as opposed to the more specific domain data types needed to build OWL classes.
 For instance, an array of \texttt{double} values indexed by \texttt{integer} values could represent anything from prices indexed by product IDs to probabilities indexed by lead times.
 Domain information was specified solely in the documentation, making creating these classes a strictly manual process.
@@ -291,8 +300,8 @@ double[][] quota;
 \end{lstlisting}
 }
 
-Listing \ref{lst:input-composite} is an example of where we chose to use a simple type over several specific types.
-We refer to product quotas as Quantities rather than ProductQuotas to reduce the size of the domain term ontology.
+Listing \ref{lst:input-composite} is an example of choosing a simple type over a specific type.
+Referring to product quotas as Quantities rather than ProductQuotas reduces the size of the domain term ontology.
 While this means some of the candidate Evaluators the workflow editor displays will be incorrect, the list of candidate Evaluators is short enough that it remains well within human cognitive ability.
 For this reason, documentation remains important.
 Input and Output annotations accept \texttt{description} strings in addition to their names and types.
@@ -332,7 +341,7 @@ To convert this to use the new input gathering API one moves these variables to 
 
 \subsection{Automatic configuration parameter gathering}
 
-We can further reduce the amount of boilerplate code by applying the same procedure to Evaluator configuration parameters.
+Applying the same procedure to Evaluator configuration parameters helps reduce the amount of boilerplate code even further.
 While parameters do not contribute to the workflow composition problem, they are still necessary for usability, as they must appear in the agent workflow editor.
 Similarly to input gathering, calls to \texttt{getStringParameter} or similar procedures are replaced with a single call to \emph{\texttt{populateParameters}}.
 Unlike inputs, parameters remain constant throughout the entire game, so one typically calls \texttt{populateParameters} at Evaluator construction time.
@@ -343,28 +352,28 @@ Using input and output annotations in this way is the final step in consolidatin
 When using the annotation-based API to gather input, Evaluators' input-gathering code is linked to annotations and no longer written separately.
 This also constrains Evaluators' core logic to using inputs of the types given in annotations.
 The \texttt{populateInputs} procedure call provides a point at which to do runtime type checking to provide additional enforcement of input and output constraints.
-When we constrain Evaluators to using only types given by their semantic descriptions we eliminate one of the most serious problems with systems that use semantics:  having component code that does not match its semantic description.
+Constraining Evaluators to using only types given by their semantic descriptions eliminates one of the most serious problems with systems that use semantics:  having component code that does not match its semantic description.
 
 \section{Conclusions and future work}
 
 Source code annotations are becoming increasingly common in modern programming languages, being supported by Java, Python, and extensions to C and C++.
-In this paper we employ code annotations to specify semantic metadata for MinneTAC's Evaluators, which allows us to generate ontological classes for each Evaluator and query these ontologies to substantially reduce the number of Evaluators an agent workflow designer must be familiar with at once.
+In this paper I employ code annotations to specify semantic metadata for MinneTAC's Evaluators, which allows us to generate ontological classes for each Evaluator and query these ontologies to substantially reduce the number of Evaluators an agent workflow designer must be familiar with at once.
 This reduces the cognitive burden of workflow composition to the point where designing a MinneTAC workflow is within the reach of substantially more users.
-We additionally use these annotations to eliminate a large amount of redundant code in each component in a way that helps enforce coherence between annotations and component logic.
-Though we have not seen all of the methods we employ to do so used at once, we expect the use of code annotations for attribute-oriented programming to become more common in the future.
+I additionally use these annotations to eliminate a large amount of redundant code in each component in a way that helps enforce coherence between annotations and component logic.
+Though I have not seen all of the methods employed to do so used at once, I expect the use of code annotations for attribute-oriented programming to become more common in the future.
 
-One major limitation of our current design is that it supports only one output type per Evaluator.
+One major limitation of my current annotation-based design is that it supports only one output type per Evaluator.
 While this is sufficient for most Evaluators, in some cases it is better for an Evaluator to be capable of returning different results in certain contexts, such as when requesting information about specific products.
 One possible way of alleviating this problem is allowing outputs to carry names in the same way as inputs.
 Evaluators that wish to use outputs other than the default, unnamed output from other Evaluators may then specify which output name to use in the agent workflow configuration file.
 
 In their current forms, input and output type annotations are specified by strings with a specific syntax (e.g., ``QuantityReal[ProductID]'').
 This makes semantic description generators have to parse formatted text to discern which types annotations refer to.
-We may be able to simplify this process by specifying array cell types and index types as separate attributes to Input and Output annotations.
+It should be possible to simplify this process by specifying array cell types and index types as separate attributes to Input and Output annotations.
 
 \section*{Acknowledgements}
 
-We would like to thank advisor John Collins and Ali Abu-El-Haj for their work on the MinneTAC ontology.
+I would like to thank advisor John Collins and Ali Abu-El-Haj for their work on the MinneTAC ontology, as well as John Collins, Wolfgang Ketter, and Maria Gini~\cite{Collins08ECRA} for figures \ref{fig:arch}, \ref{fig:oracle-classes}, and \ref{fig:acolyte}.
 
 \clearpage
 \bibliographystyle{plain}
